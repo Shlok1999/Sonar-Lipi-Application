@@ -9,7 +9,11 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.shlok1999.sonarlipi",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "web": {
       "bundler": "metro",
@@ -31,6 +35,9 @@
       "eas": {
         "projectId": "106032ab-8d07-476f-aea3-a79b1df2bacd"
       }
+    },
+    "android": {
+      "package": "com.shlok1999.sonarlipi"
     }
   }
 }

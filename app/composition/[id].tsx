@@ -17,7 +17,6 @@ import * as Print from 'expo-print';
 import * as FileSystem from 'expo-file-system';
 
 
-import PDFLib, { PDFDocument, PDFPage } from 'react-native-pdf-lib';
 
 
 import TaalGrid from '@/components/TaalGrid';
@@ -89,25 +88,6 @@ export default function CompositionScreen() {
     handleGridChange(updatedGrid);
   };
 
-
-  const handleSaveImage = async () => {
-    if (!gridRef.current) return;
-
-    try {
-      setIsCapturing(true);
-      await new Promise((r) => setTimeout(r, 100)); // wait for render
-
-      const uri = await gridRef.current.capture();
-      await Sharing.shareAsync(uri, {
-        mimeType: 'image/png',
-        dialogTitle: 'Save Composition Table',
-      });
-    } catch (error) {
-      console.error('Failed to save image:', error);
-    } finally {
-      setIsCapturing(false);
-    }
-  };
 
   const handleSavePDF = async () => {
   if (!composition) return;
