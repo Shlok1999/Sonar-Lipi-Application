@@ -6,7 +6,7 @@ const EmptyState = ({ onCreatePress }) => {
   return (
     <View style={styles.container}>
       <View style={styles.iconContainer}>
-        <Feather name="music" size={48} color="#D4AF37" />
+        <Feather name="music" size={48} color="#6A45D1" />
       </View>
       
       <Text style={styles.title}>No Compositions Yet</Text>
@@ -17,8 +17,9 @@ const EmptyState = ({ onCreatePress }) => {
       <TouchableOpacity 
         style={styles.button}
         onPress={onCreatePress}
+        activeOpacity={0.8}
       >
-        <Feather name="plus" size={18} color="#FFF8E7" />
+        <Feather name="plus" size={20} color="#fff" />
         <Text style={styles.buttonText}>Create Composition</Text>
       </TouchableOpacity>
     </View>
@@ -30,45 +31,58 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 24,
+    padding: 32,
+    backgroundColor: '#F5F7FF',
   },
   iconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#FFF',
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    backgroundColor: '#E6E9FF',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: '#D4AF3733',
+    marginBottom: 24,
+    shadowColor: '#6A45D1',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.1,
+    shadowRadius: 16,
+    elevation: 5,
   },
   title: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#5E3023',
-    marginBottom: 8,
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#1E1E2E',
+    marginBottom: 12,
     textAlign: 'center',
+    letterSpacing: 0.5,
   },
   description: {
     fontSize: 16,
-    color: '#5E302399',
-    marginBottom: 24,
+    color: '#6D6D8A',
+    marginBottom: 32,
     textAlign: 'center',
-    lineHeight: 22,
+    lineHeight: 24,
+    maxWidth: 300,
   },
   button: {
-    backgroundColor: '#9B2335',
+    backgroundColor: '#6A45D1',
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 8,
+    paddingVertical: 16,
+    paddingHorizontal: 32,
+    borderRadius: 12,
+    shadowColor: '#6A45D1',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
   },
   buttonText: {
-    color: '#FFF8E7',
+    color: '#fff',
     fontWeight: '600',
-    marginLeft: 8,
+    fontSize: 16,
+    marginLeft: 12,
+    letterSpacing: 0.5,
   },
 });
 

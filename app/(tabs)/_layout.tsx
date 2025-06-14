@@ -1,34 +1,51 @@
 import { Tabs } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#9B2335',
-        tabBarInactiveTintColor: '#5E3023',
+        tabBarActiveTintColor: '#6A45D1',
+        tabBarInactiveTintColor: '#6D6D8A',
         headerStyle: {
-          backgroundColor: '#FFF8E7',
+          backgroundColor: '#F5F7FF',
+          shadowColor: 'transparent',
+          elevation: 0,
         },
         headerTitleStyle: {
-          fontWeight: '600',
-          color: '#5E3023',
+          fontWeight: '700',
+          color: '#1E1E2E',
+          fontSize: 20,
         },
         tabBarStyle: {
-          backgroundColor: '#FFF8E7',
-          borderTopColor: '#D4AF3733',
-          height: 60,
+          backgroundColor: '#FFFFFF',
+          borderTopWidth: 0,
+          height: 70,
           paddingBottom: 8,
           paddingTop: 8,
+          shadowColor: '#6A45D1',
+          shadowOffset: { width: 0, height: -4 },
+          shadowOpacity: 0.1,
+          shadowRadius: 12,
+          elevation: 10,
         },
-      }}>
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: '600',
+          marginBottom: 4,
+        },
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
-          title: 'My Compositions',
-          tabBarIcon: ({ color, size }) => (
-            <Feather name="music" size={size} color={color} />
+          title: 'Compositions',
+          tabBarIcon: ({ color, size, focused }) => (
+            <View style={focused ? styles.activeIconContainer : styles.iconContainer}>
+              <Feather name="music" size={size} color={focused ? '#FFFFFF' : color} />
+            </View>
           ),
         }}
       />
@@ -36,8 +53,10 @@ export default function TabLayout() {
         name="settings"
         options={{
           title: 'Settings',
-          tabBarIcon: ({ color, size }) => (
-            <Feather name="settings" size={size} color={color} />
+          tabBarIcon: ({ color, size, focused }) => (
+            <View style={focused ? styles.activeIconContainer : styles.iconContainer}>
+              <Feather name="settings" size={size} color={focused ? '#FFFFFF' : color} />
+            </View>
           ),
         }}
       />
@@ -46,6 +65,25 @@ export default function TabLayout() {
 }
 
 const styles = StyleSheet.create({
+  iconContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 40,
+    height: 40,
+  },
+  activeIconContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 40,
+    height: 40,
+    backgroundColor: '#6A45D1',
+    borderRadius: 20,
+    shadowColor: '#6A45D1',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
+  },
   container: {
     flex: 1,
   },

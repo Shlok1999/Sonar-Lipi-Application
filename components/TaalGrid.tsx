@@ -10,7 +10,7 @@ import {
 
 const screenWidth = Dimensions.get('window').width;
 const minColWidth = screenWidth / 8;
-const avgCharWidth = 8.5; // Approximate width per character
+const avgCharWidth = 8.5;
 
 const TaalGrid = forwardRef(({ taal, grid, onChange }, ref) => {
   const { structure, numberOfColumns } = taal;
@@ -49,7 +49,7 @@ const TaalGrid = forwardRef(({ taal, grid, onChange }, ref) => {
     <ScrollView horizontal>
       <ScrollView>
         <View ref={ref}>
-          {/* 🔶 Header Row */}
+          {/* Header Row */}
           <View style={styles.row}>
             {Array.from({ length: numberOfColumns }).map((_, colIndex) => {
               const isLastInDivision = divisionBoundaries.includes(colIndex);
@@ -68,7 +68,7 @@ const TaalGrid = forwardRef(({ taal, grid, onChange }, ref) => {
             })}
           </View>
 
-          {/* 🔷 Data Grid */}
+          {/* Data Grid */}
           {grid.map((row, rowIndex) => (
             <View key={`row-${rowIndex}`} style={styles.row}>
               {row.map((cell, colIndex) => {
@@ -80,6 +80,7 @@ const TaalGrid = forwardRef(({ taal, grid, onChange }, ref) => {
                       styles.cellContainer,
                       { width: columnWidths[colIndex] },
                       isLastInDivision && styles.divisionBorder,
+                      rowIndex === grid.length - 1 && styles.lastRow, // Add border to last row
                     ]}
                   >
                     <TextInput
@@ -104,11 +105,11 @@ const TaalGrid = forwardRef(({ taal, grid, onChange }, ref) => {
 const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
+    borderBottomWidth: 1, // Horizontal line between rows
+    borderBottomColor: '#e0e0e0', // Light gray
   },
   headerCellContainer: {
-    borderWidth: 1,
-    borderColor: 'black',
-    backgroundColor: '#eee',
+    backgroundColor: '#f5f5f5',
     height: 40,
     justifyContent: 'center',
     alignItems: 'center',
@@ -116,10 +117,9 @@ const styles = StyleSheet.create({
   headerText: {
     fontWeight: 'bold',
     fontSize: 14,
+    color: '#333',
   },
   cellContainer: {
-    borderWidth: 1,
-    borderColor: 'black',
     backgroundColor: 'white',
     height: 48,
     justifyContent: 'center',
@@ -134,8 +134,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
   },
   divisionBorder: {
-    borderRightWidth: 2,
-    borderRightColor: 'black',
+    borderRightWidth: 2, // Division markers
+    borderRightColor: 'black', // Purple accent color
+  },
+  lastRow: {
+    borderBottomWidth: 1, // Ensure last row has bottom border
+    borderBottomColor: '#e0e0e0',
   },
 });
 
