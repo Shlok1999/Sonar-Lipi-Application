@@ -41,6 +41,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
+          headerShown: false,
           title: 'Compositions',
           tabBarIcon: ({ color, size, focused }) => (
             <View style={focused ? styles.activeIconContainer : styles.iconContainer}>
@@ -84,7 +85,5 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 5,
   },
-  container: {
-    flex: 1,
-  },
+
 });

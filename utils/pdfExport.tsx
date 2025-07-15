@@ -1,103 +1,110 @@
-import { Platform } from 'react-native';
-import { pdf, Document, Page, View, Text, StyleSheet } from '@react-pdf/renderer';
-import * as FileSystem from 'expo-file-system';
-import * as Sharing from 'expo-sharing';
+import { Page, Document, Text, View, StyleSheet } from '@react-pdf/renderer';
 
 const styles = StyleSheet.create({
   page: {
     flexDirection: 'column',
     padding: 30,
+    backgroundColor: '#FFFFFF',
+  },
+  header: {
+    marginBottom: 20,
   },
   title: {
     fontSize: 24,
-    marginBottom: 20,
+    fontWeight: 'bold',
+    color: '#6A45D1',
+    marginBottom: 8,
   },
-  table: {
-    display: 'flex',
-    width: 'auto',
-    borderStyle: 'solid',
-    borderWidth: 1,
-    borderColor: '#D4AF37',
+  taalInfo: {
+    fontSize: 14,
+    color: '#666666',
+    marginBottom: 4,
+  },
+  structure: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#9B2335',
   },
   row: {
     flexDirection: 'row',
-    borderBottomWidth: 1,
-    borderBottomColor: '#D4AF37',
   },
   cell: {
     padding: 8,
     fontSize: 12,
-    borderRightWidth: 1,
-    borderRightColor: '#D4AF37',
     width: 60,
     textAlign: 'center',
+    minHeight: 30,
   },
-  divisionBorder: {
+  headerCell: {
+    padding: 8,
+    fontSize: 12,
+    width: 60,
+    textAlign: 'center',
+    fontWeight: 'bold',
+    backgroundColor: '#F5F5F5',
+  },
+  thickBorderRight: {
     borderRightWidth: 2,
-    borderRightColor: '#9B2335',
+    borderRightColor: '#000000',
   },
 });
 
-const CompositionPDF = ({ composition }) => (
-  <Document>
-    <Page size="A4" style={styles.page}>
-      <Text style={styles.title}>{composition.name}</Text>
-      <View style={styles.table}>
-        {composition.grid.map((row, rowIndex) => (
-          <View key={rowIndex} style={styles.row}>
-            {row.map((cell, colIndex) => {
-              const isLastInDivision = composition.taal.structure
-                .reduce((acc, val) => [...acc, (acc[acc.length - 1] || 0) + val], [])
-                .slice(0, -1)
-                .includes(colIndex + 1);
+const CompositionPDF = ({ composition }) => {
+  // Calculate division points
+  const divisionBoundaries = [];
+  let cumulative = 0;
+  composition.taal.structure.forEach((count, index) => {
+    cumulative += count;
+    if (index < composition.taal.structure.length - 1) {
+      divisionBoundaries.push(cumulative - 1);
+    }
+  });
 
-              return (
-                <Text
-                  key={colIndex}
-                  style={[
-                    styles.cell,
-                    isLastInDivision && styles.divisionBorder,
-                  ]}
-                >
-                  {cell || ' '}
-                </Text>
-              );
-            })}
+  return (
+    <Document>
+      <Page size="A4" style={styles.page}>
+        <View style={styles.header}>
+          <Text style={styles.title}>{composition.name}</Text>
+          <Text style={styles.taalInfo}>Taal: {composition.taal.name}</Text>
+          <Text style={styles.structure}>
+            Structure: {composition.taal.structure.join(' + ')}
+          </Text>
+        </View>
+
+        {/* Header Row */}
+        <View style={[styles.row, { marginBottom: 10 }]}>
+          {Array.from({ length: composition.taal.numberOfColumns }).map((_, colIndex) => (
+            <View
+              key={`header-${colIndex}`}
+              style={[
+                styles.headerCell,
+                divisionBoundaries.includes(colIndex) && styles.thickBorderRight,
+              ]}
+            >
+              <Text>{colIndex + 1}</Text>
+            </View>
+          ))}
+        </View>
+
+        {/* Data Rows */}
+        {composition.grid.map((row, rowIndex) => (
+          <View key={`row-${rowIndex}`} style={styles.row}>
+            {row.map((cell, colIndex) => (
+              <View
+                key={`cell-${rowIndex}-${colIndex}`}
+                style={[
+                  styles.cell,
+                  divisionBoundaries.includes(colIndex) && styles.thickBorderRight,
+                ]}
+              >
+                <Text>{cell || ' '}</Text>
+              </View>
+            ))}
           </View>
         ))}
-      </View>
-    </Page>
-  </Document>
-);
-
-export const exportToPDF = async (composition) => {
-  try {
-    const pdfDoc = await pdf(<CompositionPDF composition={composition} />).toBlob();
-
-    if (Platform.OS === 'web') {
-      // For web, create a download link
-      const url = URL.createObjectURL(pdfDoc);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `${composition.name}.pdf`;
-      link.click();
-      URL.revokeObjectURL(url);
-    } else {
-      // For mobile platforms
-      const pdfBase64 = await pdf(<CompositionPDF composition={composition} />).toBase64();
-      const filePath = `${FileSystem.documentDirectory}${composition.name}.pdf`;
-      
-      await FileSystem.writeAsStringAsync(filePath, pdfBase64, {
-        encoding: FileSystem.EncodingType.Base64,
-      });
-      
-      await Sharing.shareAsync(filePath, {
-        mimeType: 'application/pdf',
-        dialogTitle: 'Export Composition',
-      });
-    }
-  } catch (error) {
-    console.error('Error exporting PDF:', error);
-    throw error;
-  }
+      </Page>
+    </Document>
+  );
 };
+
+export default CompositionPDF;

@@ -73,7 +73,7 @@ export default function CompositionScreen() {
   const handleSavePDF = async () => {
     if (!composition) return;
     setIsSaving(true);
-    
+
     try {
       const { uri } = await Print.printToFileAsync({
         html: generatePDFHTML(composition),
@@ -90,38 +90,88 @@ export default function CompositionScreen() {
   };
 
   const generatePDFHTML = (comp) => {
-    const { taal, grid, name } = comp;
-    const tableHeaders = Array.from({ length: taal.numberOfColumns }, (_, i) => 
-      `<th>${i + 1}</th>`
-    ).join('');
-    
-    const tableRows = grid.map(row => 
-      `<tr>${row.map(cell => `<td>${cell || ''}</td>`).join('')}</tr>`
-    ).join('');
+  const { taal, grid, name } = comp;
 
-    return `
-      <html>
-        <head>
-          <style>
-            body { font-family: Arial, sans-serif; padding: 24px; }
-            h2 { color: #6A45D1; }
-            h4 { color: #9B2335; }
-            table { width: 100%; border-collapse: collapse; margin-top: 12px; }
-            th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
-            th { background-color: #f5f5f5; }
-          </style>
-        </head>
-        <body>
-          <h2>${name}</h2>
-          <h4>Taal: ${taal.name} (${taal.structure.join(' + ')})</h4>
-          <table>
-            <thead><tr>${tableHeaders}</tr></thead>
-            <tbody>${tableRows}</tbody>
-          </table>
-        </body>
-      </html>
-    `;
-  };
+  // Calculate division column indices
+  const divisionIndices = [];
+  let sum = 0;
+  for (let i = 0; i < taal.structure.length - 1; i++) {
+    sum += taal.structure[i];
+    divisionIndices.push(sum - 1); // 0-based
+  }
+
+  // Table header cells
+  const tableHeaders = Array.from({ length: taal.numberOfColumns }, (_, i) => {
+    const style = divisionIndices.includes(i)
+      ? 'border-right: 3px solid black;'
+      : 'border-right: none;';
+    return `<th style="${style}">${i + 1}</th>`;
+  }).join('');
+
+  // Filter out empty rows
+  const nonEmptyRows = grid.filter(row =>
+    row.some(cell => (cell || '').trim() !== '')
+  );
+
+  // Table data rows
+  const tableRows = nonEmptyRows.map(row => {
+    return (
+      `<tr>` +
+      row.map((cell, i) => {
+        const style = divisionIndices.includes(i)
+          ? 'border-right: 3px solid black;'
+          : 'border-right: none;';
+        return `<td style="${style}">${cell || ''}</td>`;
+      }).join('') +
+      `</tr>`
+    );
+  }).join('');
+
+  // Final HTML
+  return `
+    <html>
+      <head>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            padding: 24px;
+          }
+          h2 { color: #6A45D1; }
+          h4 { color: #9B2335; }
+
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+            border: 2px solid black; /* full table border */
+          }
+
+          th, td {
+            padding: 8px;
+            text-align: center;
+            border-top: 1px solid #ccc;
+            border-bottom: 1px solid #ccc;
+          }
+
+          th {
+            background-color: #f5f5f5;
+          }
+        </style>
+      </head>
+      <body>
+        <h2>${name}</h2>
+        <h4>Taal: ${taal.name} (${taal.structure.join(' + ')})</h4>
+        <table>
+          <thead><tr>${tableHeaders}</tr></thead>
+          <tbody>${tableRows}</tbody>
+        </table>
+      </body>
+    </html>
+  `;
+};
+
+
+
 
   const handleScrollLeft = () => {
     horizontalScrollRef.current?.scrollTo({ x: 0, animated: true });
@@ -144,25 +194,49 @@ export default function CompositionScreen() {
       <Stack.Screen
         options={{
           title: composition?.name || 'Composition',
-          headerStyle: { backgroundColor: '#F5F7FF' },
-          headerTitleStyle: { color: '#1E1E2E', fontWeight: '700' },
+          headerShown: true,
+          headerStyle: {
+            backgroundColor: '#F5F7FF',
+            shadowColor: '#6A45D1',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 8,
+            elevation: 3,
+          },
+          headerTitleStyle: {
+            color: '#1E1E2E',
+            fontWeight: '700',
+            fontSize: 18,
+          },
+          headerTitleAlign: 'center',
           headerLeft: () => (
-            <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-              <Feather name="chevron-left" size={24} color="#6A45D1" />
-            </TouchableOpacity>
+            <View style={styles.headerLeftContainer}>
+              <TouchableOpacity
+                onPress={() => router.back()}
+                style={styles.backButton}
+              >
+                <Feather name="chevron-left" size={24} color="#6A45D1" />
+                <Text style={styles.backButtonText}>Back</Text>
+              </TouchableOpacity>
+            </View>
           ),
           headerRight: () => (
-            <TouchableOpacity
-              onPress={handleSavePDF}
-              style={styles.saveButton}
-              disabled={isSaving}
-            >
-              {isSaving ? (
-                <ActivityIndicator color="#6A45D1" size="small" />
-              ) : (
-                <Feather name="download" size={24} color="#6A45D1" />
-              )}
-            </TouchableOpacity>
+            <View style={styles.headerRightContainer}>
+              <TouchableOpacity
+                onPress={handleSavePDF}
+                style={styles.saveButton}
+                disabled={isSaving}
+              >
+                {isSaving ? (
+                  <ActivityIndicator color="#6A45D1" size="small" />
+                ) : (
+                  <>
+                    <Feather name="download" size={20} color="#6A45D1" />
+                    <Text style={styles.saveButtonText}>Save</Text>
+                  </>
+                )}
+              </TouchableOpacity>
+            </View>
           ),
         }}
       />
@@ -172,7 +246,7 @@ export default function CompositionScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
       >
-        <ScrollView 
+        <ScrollView
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
@@ -185,8 +259,8 @@ export default function CompositionScreen() {
 
           <View style={styles.gridContainer}>
             <ViewShot ref={gridRef} options={{ format: 'png', quality: 1 }}>
-              <ScrollView 
-                horizontal 
+              <ScrollView
+                horizontal
                 ref={horizontalScrollRef}
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={styles.horizontalScrollContent}
@@ -201,30 +275,30 @@ export default function CompositionScreen() {
           </View>
 
           <View style={styles.scrollControls}>
-            <ScrollControlButton 
-              icon="chevron-left" 
-              label="Scroll Left" 
-              onPress={handleScrollLeft} 
+            <ScrollControlButton
+              icon="chevron-left"
+              label="Scroll Left"
+              onPress={handleScrollLeft}
             />
-            <ScrollControlButton 
-              icon="chevron-right" 
-              label="Scroll Right" 
-              onPress={handleScrollRight} 
+            <ScrollControlButton
+              icon="chevron-right"
+              label="Scroll Right"
+              onPress={handleScrollRight}
               style={{ marginLeft: 12 }}
             />
           </View>
 
           <View style={styles.rowControls}>
-            <ActionButton 
-              icon="plus" 
-              label="Add Row" 
-              onPress={handleAddRow} 
+            <ActionButton
+              icon="plus"
+              label="Add Row"
+              onPress={handleAddRow}
               color="#6A45D1"
             />
-            <ActionButton 
-              icon="trash-2" 
-              label="Remove Row" 
-              onPress={handleRemoveRow} 
+            <ActionButton
+              icon="trash-2"
+              label="Remove Row"
+              onPress={handleRemoveRow}
               color="#FF6B8B"
               disabled={!composition || composition.grid.length <= 1}
             />
@@ -236,8 +310,8 @@ export default function CompositionScreen() {
 }
 
 const ScrollControlButton = ({ icon, label, onPress, style }) => (
-  <TouchableOpacity 
-    style={[styles.scrollControlButton, style]} 
+  <TouchableOpacity
+    style={[styles.scrollControlButton, style]}
     onPress={onPress}
   >
     <Feather name={icon} size={20} color="#6A45D1" />
@@ -350,13 +424,39 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     fontSize: 14,
   },
-  backButton: {
-    padding: 8,
+
+  headerLeftContainer: {
     marginLeft: 8,
   },
-  saveButton: {
-    padding: 8,
+  headerRightContainer: {
     marginRight: 8,
   },
+  backButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 8,
+  },
+  backButtonText: {
+    color: '#6A45D1',
+    fontSize: 16,
+    marginLeft: 4,
+    fontWeight: '600',
+  },
+  saveButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(106, 69, 209, 0.1)',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(106, 69, 209, 0.2)',
+  },
+  saveButtonText: {
+    color: '#6A45D1',
+    fontSize: 16,
+    marginLeft: 6,
+    fontWeight: '600',
+  }
 });
 

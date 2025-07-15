@@ -10,6 +10,7 @@ export const loadCompositions = async () => {
     if (!data) {
       return [];
     }
+
     
     return JSON.parse(data);
   } catch (error) {
