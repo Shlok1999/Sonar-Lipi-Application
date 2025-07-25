@@ -1,7 +1,6 @@
 import { Tabs } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
-import { StyleSheet, View } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { StyleSheet, View, Platform, StatusBar } from 'react-native';
 
 export default function TabLayout() {
   return (
@@ -22,19 +21,39 @@ export default function TabLayout() {
         tabBarStyle: {
           backgroundColor: '#FFFFFF',
           borderTopWidth: 0,
-          height: 70,
-          paddingBottom: 8,
+          height: Platform.select({
+            ios: 70,
+            android: 60 + StatusBar.currentHeight,
+          }),
+          paddingBottom: Platform.select({
+            ios: 8,
+            android: 4,
+          }),
           paddingTop: 8,
           shadowColor: '#6A45D1',
           shadowOffset: { width: 0, height: -4 },
           shadowOpacity: 0.1,
           shadowRadius: 12,
           elevation: 10,
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
         },
         tabBarLabelStyle: {
           fontSize: 12,
           fontWeight: '600',
-          marginBottom: 4,
+          marginBottom: Platform.select({
+            ios: 4,
+            android: 0,
+          }),
+        },
+        tabBarItemStyle: {
+          height: 50,
+          paddingBottom: Platform.select({
+            android: 4,
+            default: 0,
+          }),
         },
       }}
     >
@@ -85,5 +104,4 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 5,
   },
-
 });

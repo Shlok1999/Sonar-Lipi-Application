@@ -6,12 +6,9 @@ const STORAGE_KEY = 'indian_music_compositions';
 export const loadCompositions = async () => {
   try {
     const data = await AsyncStorage.getItem(STORAGE_KEY);
-    
     if (!data) {
       return [];
     }
-
-    
     return JSON.parse(data);
   } catch (error) {
     console.error('Error loading compositions:', error);
