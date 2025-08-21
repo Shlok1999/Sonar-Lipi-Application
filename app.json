@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Sonar Lipi",
-    "slug": "bolt-expo-nativewind",
+    "slug": "sonar-lipi",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -18,7 +18,7 @@
     "web": {
       "bundler": "metro",
       "output": "single",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/icon.png"
     },
     "plugins": [
       "expo-router",
@@ -34,7 +34,6 @@
           }
         }
       ]
-
     ],
     "experiments": {
       "typedRoutes": true
@@ -44,11 +43,12 @@
         "origin": false
       },
       "eas": {
-        "projectId": "106032ab-8d07-476f-aea3-a79b1df2bacd"
+        "projectId": "97d21b1e-978b-4587-b82a-bf84a96ef690"
       }
     },
     "android": {
       "package": "com.shlok1999.sonarlipi"
-    }
+    },
+    "owner": "shloksri"
   }
 }

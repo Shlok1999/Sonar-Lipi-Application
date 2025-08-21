@@ -1,27 +1,30 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 
 const EmptyState = ({ onCreatePress }) => {
   return (
     <View style={styles.container}>
       <View style={styles.iconContainer}>
-        <Feather name="music" size={48} color="#6A45D1" />
+        <Image
+          style={{ width: 120, height: 120, borderRadius: 60 }}
+          source={require('@/assets/images/icon.png')}
+          resizeMode="contain" 
+        />
       </View>
-      
       <Text style={styles.title}>No Compositions Yet</Text>
       <Text style={styles.description}>
         Create your first rhythm composition to get started with Indian classical music.
       </Text>
       
-      <TouchableOpacity 
+      {/* <TouchableOpacity 
         style={styles.button}
         onPress={onCreatePress}
         activeOpacity={0.8}
       >
         <Feather name="plus" size={20} color="#fff" />
         <Text style={styles.buttonText}>Create Composition</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
     </View>
   );
 };
@@ -29,15 +32,13 @@ const EmptyState = ({ onCreatePress }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
-    padding: 32,
+    marginTop: "35%",
     backgroundColor: '#F5F7FF',
   },
   iconContainer: {
-    width: 96,
-    height: 96,
-    borderRadius: 48,
+    width: 64,
+    height: 64,
     backgroundColor: '#E6E9FF',
     justifyContent: 'center',
     alignItems: 'center',

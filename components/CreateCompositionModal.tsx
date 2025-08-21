@@ -60,9 +60,9 @@ const CreateCompositionModal = ({ visible, onClose, onSuccess }) => {
     if (!validateForm()) return;
 
     const taal = TAALS.find(t => t.id === selectedTaal);
-    
-    // Create empty grid with 4 rows based on taal structure
-    const emptyGrid = Array(4)
+
+    // Create empty grid with 2 rows based on taal structure
+    const emptyGrid = Array(10)
       .fill()
       .map(() => Array(taal.numberOfColumns).fill(''));
     

@@ -1,4 +1,4 @@
-import React, { useState, forwardRef } from 'react';
+import React, { useState, forwardRef, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,7 +10,6 @@ import {
   Modal,
   Pressable,
 } from 'react-native';
-import { Feather } from '@expo/vector-icons';
 
 const screenWidth = Dimensions.get('window').width;
 const minColWidth = screenWidth / 8;
@@ -24,6 +23,11 @@ const TaalGrid = forwardRef(({ taal, grid, onChange }, ref) => {
   const [activeRow, setActiveRow] = useState(null);
   const [showActionModal, setShowActionModal] = useState(false);
 
+  const horizontalScrollRef = useRef(null);
+  const verticalScrollRef = useRef(null);
+  const topHeaderScrollRef = useRef(null);
+  const leftColumnScrollRef = useRef(null);
+
   const divisionBoundaries = [];
   let currentSum = 0;
   for (let i = 0; i < structure.length; i++) {
@@ -32,6 +36,7 @@ const TaalGrid = forwardRef(({ taal, grid, onChange }, ref) => {
       divisionBoundaries.push(currentSum - 1);
     }
   }
+  const totalWidth = columnWidths.reduce((sum, width) => sum + width, 0);
 
   const handleCellChange = (rowIndex, colIndex, text) => {
     const newGrid = [...grid];
@@ -69,18 +74,6 @@ const TaalGrid = forwardRef(({ taal, grid, onChange }, ref) => {
     newGrid[index] = Array(numberOfColumns).fill('');
     onChange(newGrid);
   };
-  
-  const handleInsertRow = (rowIndex) => {
-    const newRow = Array(numberOfColumns).fill('');
-    const newGrid = [...grid.slice(0, rowIndex + 1), newRow, ...grid.slice(rowIndex + 1)];
-    onChange(newGrid);
-  };
-
-  const handleDeleteRow = (rowIndex) => {
-    if (grid.length <= 1) return;
-    const newGrid = grid.filter((_, i) => i !== rowIndex);
-    onChange(newGrid);
-  };
 
   const handleRowActionPress = (rowIndex) => {
     setActiveRow(rowIndex);
@@ -89,8 +82,8 @@ const TaalGrid = forwardRef(({ taal, grid, onChange }, ref) => {
 
   const handleAction = (action) => {
     if (activeRow === null) return;
-    
-    switch(action) {
+
+    switch (action) {
       case 'add':
         handleAddRow(activeRow);
         break;
@@ -103,7 +96,7 @@ const TaalGrid = forwardRef(({ taal, grid, onChange }, ref) => {
       default:
         break;
     }
-    
+
     setShowActionModal(false);
     setActiveRow(null);
   };
@@ -119,14 +112,11 @@ const TaalGrid = forwardRef(({ taal, grid, onChange }, ref) => {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Pressable 
-              style={styles.modalButton} 
-              onPress={() => handleAction('add')}
-            >
+            <Pressable style={styles.modalButton} onPress={() => handleAction('add')}>
               <Text style={styles.modalButtonText}>Add Row Below</Text>
             </Pressable>
-            <Pressable 
-              style={styles.modalButton} 
+            <Pressable
+              style={styles.modalButton}
               onPress={() => handleAction('remove')}
               disabled={grid.length <= 1}
             >
@@ -134,14 +124,11 @@ const TaalGrid = forwardRef(({ taal, grid, onChange }, ref) => {
                 Remove Row
               </Text>
             </Pressable>
-            <Pressable 
-              style={styles.modalButton} 
-              onPress={() => handleAction('clear')}
-            >
+            <Pressable style={styles.modalButton} onPress={() => handleAction('clear')}>
               <Text style={styles.modalButtonText}>Clear Row</Text>
             </Pressable>
-            <Pressable 
-              style={[styles.modalButton, styles.cancelButton]} 
+            <Pressable
+              style={[styles.modalButton, styles.cancelButton]}
               onPress={() => setShowActionModal(false)}
             >
               <Text style={styles.modalButtonText}>Cancel</Text>
@@ -150,70 +137,109 @@ const TaalGrid = forwardRef(({ taal, grid, onChange }, ref) => {
         </View>
       </Modal>
 
-      {/* Scrollable Grid */}
-      <View style={styles.tableContainer}>
-        <ScrollView horizontal>
-          <ScrollView>
-            <View ref={ref}>
-              {/* Header Row */}
-              <View style={styles.row}>
-                <View style={[styles.rowActionCell, styles.headerCellContainer]}>
-                  <Text style={styles.headerText}>#</Text>
-                </View>
-                {Array.from({ length: numberOfColumns }).map((_, colIndex) => {
-                  const isLastInDivision = divisionBoundaries.includes(colIndex);
-                  return (
-                    <View
-                      key={`header-${colIndex}`}
-                      style={[
-                        styles.headerCellContainer,
-                        { width: columnWidths[colIndex] },
-                        isLastInDivision && styles.divisionBorder,
-                      ]}
-                    >
-                      <Text style={styles.headerText}>{colIndex + 1}</Text>
-                    </View>
-                  );
-                })}
-              </View>
+      {/* Layout */}
+      <View style={{ flexDirection: 'row' }}>
+        {/* Left Column */}
+        <View>
+          {/* Top-left corner cell */}
+          <View style={styles.cornerCell}>
+            <Text style={styles.headerText}>#</Text>
+          </View>
 
-              {/* Data Rows */}
-              {grid.map((row, rowIndex) => (
-                <View key={`row-${rowIndex}`} style={styles.row}>
-                  <TouchableOpacity 
-                    style={styles.rowActionCell}
-                    onPress={() => handleRowActionPress(rowIndex)}
+          {/* Row numbers */}
+          <ScrollView
+            ref={leftColumnScrollRef}
+            scrollEnabled={false}
+            showsVerticalScrollIndicator={false}
+          >
+            {grid.map((_, rowIndex) => (
+              <TouchableOpacity
+                key={`row-label-${rowIndex}`}
+                onPress={() => handleRowActionPress(rowIndex)}
+                style={styles.rowNumberCell}
+              >
+                <Text style={styles.rowNumber}>{rowIndex + 1}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+
+        {/* Right Section */}
+        <View style={{ flex: 1 }}>
+          {/* Top Header Row */}
+          <ScrollView
+            ref={topHeaderScrollRef}
+            horizontal
+            scrollEnabled={false}
+            contentContainerStyle={{ width: totalWidth }}
+          >
+            <View style={styles.row}>
+              {Array.from({ length: numberOfColumns }).map((_, colIndex) => {
+                const isLastInDivision = divisionBoundaries.includes(colIndex);
+                return (
+                  <View
+                    key={`header-${colIndex}`}
+                    style={[
+                      styles.headerCellContainer,
+                      { width: columnWidths[colIndex] },
+                      isLastInDivision && styles.divisionBorder,
+                    ]}
                   >
-                    <Text style={styles.rowNumber}>{rowIndex + 1}</Text>
-                  </TouchableOpacity>
-                  
-                  {row.map((cell, colIndex) => {
-                    const isLastInDivision = divisionBoundaries.includes(colIndex);
-                    return (
-                      <View
-                        key={`cell-${rowIndex}-${colIndex}`}
-                        style={[
-                          styles.cellContainer,
-                          { width: columnWidths[colIndex] },
-                          isLastInDivision && styles.divisionBorder,
-                        ]}
-                      >
-                        <TextInput
-                          style={styles.cell}
-                          value={cell}
-                          onChangeText={(text) => handleCellChange(rowIndex, colIndex, text)}
-                          placeholder=""
-                          placeholderTextColor="#999"
-                          multiline={false}
-                        />
-                      </View>
-                    );
-                  })}
-                </View>
-              ))}
+                    <Text style={styles.headerText}>{colIndex + 1}</Text>
+                  </View>
+                );
+              })}
             </View>
           </ScrollView>
-        </ScrollView>
+
+          {/* Scrollable Grid */}
+          <ScrollView
+            ref={verticalScrollRef}
+            onScroll={(e) => {
+              leftColumnScrollRef.current?.scrollTo({ y: e.nativeEvent.contentOffset.y, animated: false });
+            }}
+            scrollEventThrottle={16}
+          >
+            <ScrollView
+              ref={horizontalScrollRef}
+              horizontal
+              scrollEventThrottle={16}
+              onScroll={(e) => {
+                topHeaderScrollRef.current?.scrollTo({ x: e.nativeEvent.contentOffset.x, animated: false });
+              }}
+              contentContainerStyle={{ width: totalWidth }}
+            >
+              <View ref={ref}>
+                {grid.map((row, rowIndex) => (
+                  <View key={`row-${rowIndex}`} style={styles.row}>
+                    {row.map((cell, colIndex) => {
+                      const isLastInDivision = divisionBoundaries.includes(colIndex);
+                      return (
+                        <View
+                          key={`cell-${rowIndex}-${colIndex}`}
+                          style={[
+                            styles.cellContainer,
+                            { width: columnWidths[colIndex] },
+                            isLastInDivision && styles.divisionBorder,
+                          ]}
+                        >
+                          <TextInput
+                            style={styles.cell}
+                            value={cell}
+                            onChangeText={(text) => handleCellChange(rowIndex, colIndex, text)}
+                            placeholder=""
+                            placeholderTextColor="#999"
+                            multiline={false}
+                          />
+                        </View>
+                      );
+                    })}
+                  </View>
+                ))}
+              </View>
+            </ScrollView>
+          </ScrollView>
+        </View>
       </View>
     </View>
   );
@@ -221,24 +247,30 @@ const TaalGrid = forwardRef(({ taal, grid, onChange }, ref) => {
 
 const styles = StyleSheet.create({
   mainContainer: {
-    flex: 1,
-  },
-  tableContainer: {
-    flex: 1,
-    marginBottom: 40,
+    minHeight: 200,
   },
   row: {
     flexDirection: 'row',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
     alignItems: 'center',
   },
-  rowActionCell: {
+  cornerCell: {
     width: 40,
-    backgroundColor: '#e0e0e0',
-    height: 48,
+    height: 40,
+    backgroundColor: '#f5f5f5',
     justifyContent: 'center',
     alignItems: 'center',
+    borderRightWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: '#ccc',
+  },
+  rowNumberCell: {
+    width: 40,
+    height: 48,
+    backgroundColor: '#e0e0e0',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderColor: '#ccc',
   },
   rowNumber: {
     fontWeight: 'bold',
@@ -249,9 +281,8 @@ const styles = StyleSheet.create({
     height: 40,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  rowActionHeader: {
-    width: 70,
+    borderBottomWidth: 1,
+    borderColor: '#ccc',
   },
   headerText: {
     fontWeight: 'bold',
@@ -263,6 +294,8 @@ const styles = StyleSheet.create({
     height: 48,
     justifyContent: 'center',
     alignItems: 'center',
+    borderBottomWidth: 1,
+    borderColor: '#e0e0e0',
   },
   cell: {
     width: '100%',
@@ -275,24 +308,6 @@ const styles = StyleSheet.create({
   divisionBorder: {
     borderRightWidth: 2,
     borderRightColor: 'black',
-  },
-  rowActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    width: 70,
-    justifyContent: 'center',
-  },
-  inlineButton: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: '#6A45D1',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginHorizontal: 2,
-  },
-  removeInlineButton: {
-    backgroundColor: '#FF6B6B',
   },
   modalOverlay: {
     flex: 1,

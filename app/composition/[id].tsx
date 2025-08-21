@@ -10,14 +10,18 @@ import {
   Platform,
   Dimensions,
   Animated,
+  Easing,
+  SafeAreaView,
+  Keyboard
 } from 'react-native';
 import { useLocalSearchParams, Stack, router } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import ViewShot from 'react-native-view-shot';
 import * as Sharing from 'expo-sharing';
 import * as Print from 'expo-print';
+import { useHeaderHeight } from '@react-navigation/elements';
 
-const { width: screenWidth } = Dimensions.get('window');
+
 
 import TaalGrid from '@/components/TaalGrid';
 import { loadComposition, saveComposition } from '@/utils/storage';
@@ -35,27 +39,30 @@ export default function CompositionScreen() {
   const horizontalScrollRef = useRef(null);
   const scrollViewRef = useRef(null);
 
-  const handleZoomIn = () => {
-  Animated.timing(scaleValue, {
-    toValue: Math.min(scale * 1.2, 2), // Max zoom 2x
-    duration: 200,
-    easing: Easing.linear,
-    useNativeDriver: true,
-  }).start(() => {
-    setScale(prev => Math.min(prev * 1.2, 2));
-  });
-};
+  const headerHeight = useHeaderHeight();
 
-const handleZoomOut = () => {
-  Animated.timing(scaleValue, {
-    toValue: Math.max(scale / 1.2, 0.8), // Min zoom 0.8x
-    duration: 200,
-    easing: Easing.linear,
-    useNativeDriver: true,
-  }).start(() => {
-    setScale(prev => Math.max(prev / 1.2, 0.8));
-  });
-};
+  // Add keyboard listeners
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      'keyboardDidShow',
+      (e) => {
+        setKeyboardHeight(e.endCoordinates.height);
+        setIsKeyboardVisible(true);
+      }
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      'keyboardDidHide',
+      () => {
+        setKeyboardHeight(0);
+        setIsKeyboardVisible(false);
+      }
+    );
+
+    return () => {
+      keyboardDidShowListener?.remove();
+      keyboardDidHideListener?.remove();
+    };
+  }, []);
 
 
   useEffect(() => {
@@ -86,17 +93,6 @@ const handleZoomOut = () => {
 
     setComposition(updatedComposition);
     saveComposition(updatedComposition);
-  };
-
-  const handleAddRow = () => {
-    if (!composition) return;
-    const emptyRow = Array(composition.taal.numberOfColumns).fill('');
-    handleGridChange([...composition.grid, emptyRow]);
-  };
-
-  const handleRemoveRow = () => {
-    if (!composition || composition.grid.length <= 1) return;
-    handleGridChange(composition.grid.slice(0, -1));
   };
 
   const handleSavePDF = async () => {
@@ -207,15 +203,15 @@ const handleZoomOut = () => {
       <Stack.Screen
         options={{
           title: composition?.name || 'Composition',
-          headerShown: true,
           headerStyle: {
             backgroundColor: '#F5F7FF',
             shadowColor: '#6A45D1',
             shadowOffset: { width: 0, height: 2 },
             shadowOpacity: 0.1,
             shadowRadius: 8,
-            elevation: 3,
+            // elevation: 3,
           },
+          headerShown: true,
           headerTitleStyle: {
             color: '#1E1E2E',
             fontWeight: '700',
@@ -223,59 +219,45 @@ const handleZoomOut = () => {
           },
           headerTitleAlign: 'center',
           headerLeft: () => (
-            <View style={styles.headerLeftContainer}>
-              <TouchableOpacity
-                onPress={() => router.back()}
-                style={styles.backButton}
-              >
-                <Feather name="chevron-left" size={24} color="#6A45D1" />
-                <Text style={styles.backButtonText}>Back</Text>
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+              <Feather name="chevron-left" size={24} color="#6A45D1" />
+              <Text style={styles.backButtonText}>Back</Text>
+            </TouchableOpacity>
           ),
           headerRight: () => (
-            <View style={styles.headerRightContainer}>
-              <TouchableOpacity
-                onPress={handleSavePDF}
-                style={styles.saveButton}
-                disabled={isSaving}
-              >
-                {isSaving ? (
-                  <ActivityIndicator color="#6A45D1" size="small" />
-                ) : (
-                  <>
-                    <Feather name="download" size={20} color="#6A45D1" />
-                    <Text style={styles.saveButtonText}>Save</Text>
-                  </>
-                )}
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity
+              onPress={handleSavePDF}
+              style={styles.saveButton}
+              disabled={isSaving}
+            >
+              {isSaving ? (
+                <ActivityIndicator color="#6A45D1" size="small" />
+              ) : (
+                <>
+                  <Feather name="download" size={20} color="#6A45D1" />
+                  <Text style={styles.saveButtonText}>Save</Text>
+                </>
+              )}
+            </TouchableOpacity>
           ),
         }}
       />
 
-      <View style={styles.container}>
-        <KeyboardAvoidingView
+      <SafeAreaView style={styles.safeArea}>
+        {/* <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={styles.keyboardAvoidContainer}
-          keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
-        >
+          keyboardVerticalOffset={headerHeight}
+        > */}
           <ScrollView
             ref={scrollViewRef}
             contentContainerStyle={[
               styles.scrollContent,
-              { paddingBottom: keyboardHeight > 0 ? keyboardHeight + 20 : 80 }
+              { paddingBottom: keyboardHeight > 0 ? keyboardHeight + 20 : 100 }
             ]}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
           >
-            <View style={styles.headerContainer}>
-              <Text style={styles.taalName}>{composition?.taal.name}</Text>
-              <Text style={styles.taalInfo}>
-                Structure: {composition?.taal.structure.join(' + ')}
-              </Text>
-            </View>
-
             <View style={styles.gridContainer}>
               <ViewShot ref={gridRef} options={{ format: 'png', quality: 1 }}>
                 <ScrollView
@@ -293,8 +275,8 @@ const handleZoomOut = () => {
               </ViewShot>
             </View>
           </ScrollView>
-        </KeyboardAvoidingView>
-      </View>
+        {/* </KeyboardAvoidingView> */}
+      </SafeAreaView>
     </>
   );
 }
@@ -314,12 +296,16 @@ const styles = StyleSheet.create({
   keyboardAvoidContainer: {
     flex: 1,
   },
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#F5F7FF',
+  },
   scrollContent: {
-    padding: 20,
-    paddingBottom: 80,
+    paddingRight: 20,
+    paddingBottom: 0,
   },
   headerContainer: {
-    marginBottom: 24,
+    marginBottom: 0,
     padding: 16,
     backgroundColor: 'white',
     borderRadius: 12,

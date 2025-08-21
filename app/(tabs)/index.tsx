@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  FlatList, 
-  TouchableOpacity, 
-  StatusBar, 
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity,
+  StatusBar,
   ActivityIndicator,
   SafeAreaView,
   Platform,
-  Dimensions
+  Dimensions,
 } from 'react-native';
-import { useFocusEffect, router } from 'expo-router';
+import { useFocusEffect, router, Stack } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 
 import { loadCompositions } from '@/utils/storage';
@@ -53,12 +53,14 @@ export default function Dashboard() {
   };
 
   const renderItem = ({ item }) => (
-    <TouchableOpacity 
+    <TouchableOpacity
       style={styles.compositionCard}
       onPress={() => handleCompositionPress(item.id)}
     >
       <View style={styles.cardContent}>
-        <Text style={styles.compositionName} numberOfLines={1}>{item.name}</Text>
+        <Text style={styles.compositionName} numberOfLines={1}>
+          {item.name}
+        </Text>
         <View style={styles.taalBadge}>
           <Text style={styles.taalName}>{item.taal.name}</Text>
         </View>
@@ -70,46 +72,43 @@ export default function Dashboard() {
     </TouchableOpacity>
   );
 
-  if (isLoading) {
-    return (
-      <SafeAreaView style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#6A45D1" />
-      </SafeAreaView>
-    );
-  }
-
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
-        <StatusBar barStyle="dark-content" backgroundColor="#F5F7FF" />
-        
-        {compositions.length > 0 ? (
-          <FlatList
-            data={compositions}
-            renderItem={renderItem}
-            keyExtractor={(item) => item.id}
-            contentContainerStyle={styles.listContainer}
-            ListHeaderComponent={<Text style={styles.headerTitle}>Your Compositions</Text>}
+    <>
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.container}>
+          <StatusBar barStyle="dark-content" backgroundColor="#F5F7FF" />
+
+          {isLoading ? (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color="#6A45D1" />
+            </View>
+          ) : compositions.length > 0 ? (
+            <FlatList
+              data={compositions}
+              renderItem={renderItem}
+              keyExtractor={(item) => item.id}
+              contentContainerStyle={styles.listContainer}
+            />
+          ) : (
+            <EmptyState onCreatePress={() => setModalVisible(true)} />
+          )}
+
+          <TouchableOpacity
+            style={styles.fab}
+            onPress={() => setModalVisible(true)}
+            activeOpacity={0.8}
+          >
+            <Feather name="plus" size={24} color="white" />
+          </TouchableOpacity>
+
+          <CreateCompositionModal
+            visible={modalVisible}
+            onClose={() => setModalVisible(false)}
+            onSuccess={handleCreateSuccess}
           />
-        ) : (
-          <EmptyState onCreatePress={() => setModalVisible(true)} />
-        )}
-
-        <TouchableOpacity
-          style={styles.fab}
-          onPress={() => setModalVisible(true)}
-          activeOpacity={0.8}
-        >
-          <Feather name="plus" size={24} color="white" />
-        </TouchableOpacity>
-
-        <CreateCompositionModal
-          visible={modalVisible}
-          onClose={() => setModalVisible(false)}
-          onSuccess={handleCreateSuccess}
-        />
-      </View>
-    </SafeAreaView>
+        </View>
+      </SafeAreaView>
+    </>
   );
 }
 
@@ -122,9 +121,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F5F7FF',
     paddingBottom: Platform.select({
-      android: 16, // Add extra padding at bottom for Android
-      ios: 0
-    })
+      android: 16,
+      ios: 0,
+    }),
   },
   loadingContainer: {
     flex: 1,
@@ -132,18 +131,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#F5F7FF',
   },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#1E1E2E',
-    marginBottom: 16,
-    marginTop: 8,
-  },
   listContainer: {
     padding: 20,
     paddingBottom: Platform.select({
-      android: 80, // More padding for Android to avoid system navigation
-      ios: 80
+      android: 80,
+      ios: 80,
     }),
   },
   compositionCard: {
@@ -191,8 +183,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 24,
     bottom: Platform.select({
-      android: 70 + StatusBar.currentHeight, // Adjust for Android navigation bar
-      ios: 24
+      android: 20 + (StatusBar.currentHeight ?? 24),
+      ios: 24,
     }),
     backgroundColor: '#6A45D1',
     width: 60,
