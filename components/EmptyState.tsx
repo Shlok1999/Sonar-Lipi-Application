@@ -1,30 +1,42 @@
+// EmptyState.tsx
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Animated } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 
 const EmptyState = ({ onCreatePress }) => {
+  const scaleAnim = React.useRef(new Animated.Value(1)).current;
+
+  React.useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(scaleAnim, { toValue: 1.1, duration: 1500, useNativeDriver: true }),
+        Animated.timing(scaleAnim, { toValue: 1, duration: 1500, useNativeDriver: true }),
+      ])
+    ).start();
+  }, []);
+
   return (
     <View style={styles.container}>
-      <View style={styles.iconContainer}>
+      {/* Floating Icon */}
+      <Animated.View style={[styles.iconContainer, { transform: [{ scale: scaleAnim }] }]}>
         <Image
-          style={{ width: 120, height: 120, borderRadius: 60 }}
+          style={{ width: 100, height: 100, borderRadius: 50 }}
           source={require('@/assets/images/icon.png')}
-          resizeMode="contain" 
+          resizeMode="contain"
         />
-      </View>
+      </Animated.View>
+
+      {/* Text */}
       <Text style={styles.title}>No Compositions Yet</Text>
       <Text style={styles.description}>
         Create your first rhythm composition to get started with Indian classical music.
       </Text>
-      
-      {/* <TouchableOpacity 
-        style={styles.button}
-        onPress={onCreatePress}
-        activeOpacity={0.8}
-      >
+
+      {/* Create Button */}
+      <TouchableOpacity style={styles.button} onPress={onCreatePress} activeOpacity={0.85}>
         <Feather name="plus" size={20} color="#fff" />
         <Text style={styles.buttonText}>Create Composition</Text>
-      </TouchableOpacity> */}
+      </TouchableOpacity>
     </View>
   );
 };
@@ -33,57 +45,55 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    marginTop: "35%",
-    backgroundColor: '#F5F7FF',
+    marginTop: '30%',
+    paddingHorizontal: 20,
   },
   iconContainer: {
-    width: 64,
-    height: 64,
-    backgroundColor: '#E6E9FF',
+    backgroundColor: '#C8E6C9', // soft light green
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 24,
-    shadowColor: '#6A45D1',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.1,
-    shadowRadius: 16,
-    elevation: 5,
+    borderRadius: 60,
+    padding: 20,
+    shadowColor: '#388E3C', // deep green glow
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 6,
   },
   title: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#1E1E2E',
+    color: '#388E3C', // deep green text
     marginBottom: 12,
     textAlign: 'center',
-    letterSpacing: 0.5,
   },
   description: {
     fontSize: 16,
     color: '#6D6D8A',
     marginBottom: 32,
     textAlign: 'center',
-    lineHeight: 24,
-    maxWidth: 300,
+    lineHeight: 22,
+    maxWidth: 320,
   },
   button: {
-    backgroundColor: '#6A45D1',
+    backgroundColor: '#388E3C', // solid deep green
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 32,
-    borderRadius: 12,
-    shadowColor: '#6A45D1',
-    shadowOffset: { width: 0, height: 4 },
+    paddingVertical: 14,
+    paddingHorizontal: 28,
+    borderRadius: 30,
+    shadowColor: '#388E3C',
+    shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
+    shadowRadius: 12,
+    elevation: 8,
   },
   buttonText: {
     color: '#fff',
     fontWeight: '600',
     fontSize: 16,
-    marginLeft: 12,
-    letterSpacing: 0.5,
+    marginLeft: 10,
   },
 });
 

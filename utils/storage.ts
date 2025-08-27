@@ -107,3 +107,25 @@ export const clearAllData = async () => {
     throw error;
   }
 };
+
+//clear user data as well
+export const clearUserData = async () => {
+  try {
+    await AsyncStorage.removeItem('user_data');
+    return true;
+  } catch (error) {
+    console.error('Error clearing user data:', error);
+    throw error;
+  }
+};
+
+const CompleteClear = async () => {
+  try {
+    await AsyncStorage.clear();
+    console.log('All data cleared');
+  } catch (error) {
+    console.error('Error clearing AsyncStorage:', error);
+  }
+};
+
+CompleteClear();

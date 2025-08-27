@@ -53,48 +53,58 @@ export default function Settings() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF8E7',
+    backgroundColor: '#FFF5F0', // warm background
     padding: 16,
   },
   section: {
-    marginBottom: 24,
+    marginBottom: 32,
+    width: '100%',
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#5E3023',
+    color: '#D63324', // deep red
     marginBottom: 12,
+    marginTop: 20,
   },
   button: {
-    backgroundColor: '#9B2335',
-    padding: 16,
+    backgroundColor: 'rgba(255, 94, 58, 0.1)', // soft orange button
+    paddingVertical: 14,
+    paddingHorizontal: 28,
     borderRadius: 8,
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 94, 58, 0.2)', // subtle orange border
   },
   buttonText: {
-    color: 'white',
+    color: '#FF5E3A', // bright orange text
     fontWeight: '600',
+    fontSize: 16,
   },
   infoContainer: {
-    backgroundColor: 'white',
-    borderRadius: 8,
-    padding: 16,
-    borderLeftWidth: 4,
-    borderLeftColor: '#D4AF37',
+    backgroundColor: '#FFFAF5', // soft card background
+    borderRadius: 12,
+    padding: 20,
+    shadowColor: '#FF5E3A', // orange shadow
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 3,
   },
   infoTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#5E3023',
+    color: '#D63324', // deep red
+    marginBottom: 8,
   },
   infoVersion: {
     fontSize: 14,
-    color: '#5E302399',
-    marginBottom: 8,
+    color: '#FF5E3A', // bright orange
+    marginBottom: 12,
   },
   infoDescription: {
     fontSize: 14,
-    color: '#5E3023',
+    color: '#1E1E2E',
     lineHeight: 20,
   },
 });

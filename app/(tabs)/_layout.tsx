@@ -1,52 +1,102 @@
+import React, { useRef, useEffect } from 'react';
 import { Tabs } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
-import { StyleSheet, View, Platform, StatusBar } from 'react-native';
+import { StyleSheet, View, Animated, Platform } from 'react-native';
+
+// Animated Tab Icon
+function AnimatedIcon({ focused, name, size, color }: any) {
+  const scale = useRef(new Animated.Value(1)).current;
+  const rotate = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.spring(scale, {
+        toValue: focused ? 1.15 : 1,
+        useNativeDriver: true,
+      }),
+      Animated.timing(rotate, {
+        toValue: focused ? 1 : 0,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [focused]);
+
+  const spin = rotate.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '12deg'],
+  });
+
+  return (
+    <Animated.View
+      style={[
+        focused ? styles.activeIconContainer : styles.iconContainer,
+        { transform: [{ scale }, { rotate: spin }] },
+      ]}
+    >
+      <Feather name={name} size={size} color={focused ? '#FFFFFF' : color} />
+    </Animated.View>
+  );
+}
 
 export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        headerShown: true,
-        tabBarActiveTintColor: '#6A45D1',
-        tabBarInactiveTintColor: '#6D6D8A',
-        headerStyle: {
-          backgroundColor: '#F5F7FF',
-          shadowColor: 'transparent',
-          elevation: 0,
-        },
-        headerTitleStyle: {
-          fontWeight: '700',
-          color: '#1E1E2E',
-          fontSize: 20,
+        headerShown: false,
+        tabBarActiveTintColor: '#388E3C',
+        tabBarInactiveTintColor: '#A0A0A0',
+        tabBarStyle: {
+          backgroundColor: '#C8E6C9',
+          paddingBottom: Platform.OS === 'android' ? 8 : 20, // ✅ avoids overlap
+          paddingTop: Platform.OS === 'android' ? 8 : 20,
+          elevation: 6,
+          shadowColor: '#81C784',
+          shadowOffset: { width: 0, height: 6 },
+          shadowOpacity: 0.25,
+          shadowRadius: 12,
         },
       }}
     >
+
+      {/* <Tabs.Screen
+        name="profile"
+        options={{
+          headerShown: false,
+          title: '',
+          tabBarIcon: ({ color, size, focused }) => (
+            <AnimatedIcon name="user" size={size} color={color} focused={focused} />
+          ),
+        }}
+      /> */}
+
       <Tabs.Screen
         name="index"
         options={{
-          headerShown: true,
+          headerShown: false,
           title: '',
-          headerTitle: 'Compositions',
           tabBarIcon: ({ color, size, focused }) => (
-            <View style={focused ? styles.activeIconContainer : styles.iconContainer}>
-              <Feather name="music" size={size} color={focused ? '#FFFFFF' : color} />
-            </View>
+            <AnimatedIcon name="music" size={size} color={color} focused={focused} />
           ),
         }}
       />
+      
       <Tabs.Screen
         name="settings"
         options={{
-          title: '',
           headerShown: false,
+          title: '',
           tabBarIcon: ({ color, size, focused }) => (
-            <View style={focused ? styles.activeIconContainer : styles.iconContainer}>
-              <Feather name="settings" size={size} color={focused ? '#FFFFFF' : color} />
-            </View>
+            <AnimatedIcon name="settings" size={size} color={color} focused={focused} />
           ),
         }}
       />
+
+      
+
+      
     </Tabs>
+    
   );
 }
 
@@ -54,20 +104,20 @@ const styles = StyleSheet.create({
   iconContainer: {
     justifyContent: 'center',
     alignItems: 'center',
-    width: 40,
-    height: 40,
+    width: 42,
+    height: 42,
   },
   activeIconContainer: {
     justifyContent: 'center',
     alignItems: 'center',
-    width: 40,
-    height: 40,
-    backgroundColor: '#6A45D1',
-    borderRadius: 20,
-    shadowColor: '#6A45D1',
+    width: 42,
+    height: 42,
+    backgroundColor: '#388E3C',
+    borderRadius: 21,
+    shadowColor: '#388E3C',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
-    elevation: 5,
+    elevation: 6,
   },
 });

@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   Modal,
   Pressable,
+  Keyboard,
 } from 'react-native';
 
 const screenWidth = Dimensions.get('window').width;
@@ -22,11 +23,14 @@ const TaalGrid = forwardRef(({ taal, grid, onChange }, ref) => {
   );
   const [activeRow, setActiveRow] = useState(null);
   const [showActionModal, setShowActionModal] = useState(false);
+  const [focusedCell, setFocusedCell] = useState({ row: 0, col: 0 });
+  const [isKeyboardVisible, setKeyboardVisible] = useState(false);
 
   const horizontalScrollRef = useRef(null);
   const verticalScrollRef = useRef(null);
   const topHeaderScrollRef = useRef(null);
   const leftColumnScrollRef = useRef(null);
+  const textInputRefs = useRef({});
 
   const divisionBoundaries = [];
   let currentSum = 0;
@@ -37,6 +41,26 @@ const TaalGrid = forwardRef(({ taal, grid, onChange }, ref) => {
     }
   }
   const totalWidth = columnWidths.reduce((sum, width) => sum + width, 0);
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      'keyboardDidShow',
+      () => {
+        setKeyboardVisible(true);
+      }
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      'keyboardDidHide',
+      () => {
+        setKeyboardVisible(false);
+      }
+    );
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
 
   const handleCellChange = (rowIndex, colIndex, text) => {
     const newGrid = [...grid];
@@ -52,6 +76,61 @@ const TaalGrid = forwardRef(({ taal, grid, onChange }, ref) => {
       }, minColWidth);
       newWidths[colIndex] = maxWidth;
       return newWidths;
+    });
+  };
+
+  const handleCellFocus = (rowIndex, colIndex) => {
+    setFocusedCell({ row: rowIndex, col: colIndex });
+  };
+
+  const handleKeyPress = (event, rowIndex, colIndex) => {
+    if (event.nativeEvent.key === ' ') {
+      event.preventDefault();
+      moveToNextCell(rowIndex, colIndex);
+    }
+  };
+
+  const moveToNextCell = (currentRow, currentCol) => {
+    let nextRow = currentRow;
+    let nextCol = currentCol + 1;
+
+    // If at the end of row, move to next row
+    if (nextCol >= numberOfColumns) {
+      nextCol = 0;
+      nextRow += 1;
+    }
+
+    // If at the end of grid, stay at current cell
+    if (nextRow >= grid.length) {
+      return;
+    }
+
+    // Focus the next cell
+    const nextCellRef = textInputRefs.current[`${nextRow}-${nextCol}`];
+    if (nextCellRef) {
+      nextCellRef.focus();
+      setFocusedCell({ row: nextRow, col: nextCol });
+      
+      // Scroll to make the cell visible if needed
+      scrollToCell(nextRow, nextCol);
+    }
+  };
+
+  const scrollToCell = (rowIndex, colIndex) => {
+    // Calculate approximate position for scrolling
+    const cellTop = rowIndex * 48;
+    const cellLeft = columnWidths.slice(0, colIndex).reduce((sum, width) => sum + width, 0);
+
+    // Scroll vertically if needed
+    verticalScrollRef.current?.scrollTo({
+      y: Math.max(0, cellTop - 100),
+      animated: true
+    });
+
+    // Scroll horizontally if needed
+    horizontalScrollRef.current?.scrollTo({
+      x: Math.max(0, cellLeft - 100),
+      animated: true
     });
   };
 
@@ -214,6 +293,8 @@ const TaalGrid = forwardRef(({ taal, grid, onChange }, ref) => {
                   <View key={`row-${rowIndex}`} style={styles.row}>
                     {row.map((cell, colIndex) => {
                       const isLastInDivision = divisionBoundaries.includes(colIndex);
+                      const isFocused = focusedCell.row === rowIndex && focusedCell.col === colIndex;
+                      
                       return (
                         <View
                           key={`cell-${rowIndex}-${colIndex}`}
@@ -221,15 +302,23 @@ const TaalGrid = forwardRef(({ taal, grid, onChange }, ref) => {
                             styles.cellContainer,
                             { width: columnWidths[colIndex] },
                             isLastInDivision && styles.divisionBorder,
+                            isFocused && isKeyboardVisible && styles.focusedCell,
                           ]}
                         >
                           <TextInput
+                            ref={(ref) => {
+                              textInputRefs.current[`${rowIndex}-${colIndex}`] = ref;
+                            }}
                             style={styles.cell}
                             value={cell}
                             onChangeText={(text) => handleCellChange(rowIndex, colIndex, text)}
+                            onFocus={() => handleCellFocus(rowIndex, colIndex)}
+                            onKeyPress={(e) => handleKeyPress(e, rowIndex, colIndex)}
                             placeholder=""
                             placeholderTextColor="#999"
                             multiline={false}
+                            blurOnSubmit={false}
+                            returnKeyType="next"
                           />
                         </View>
                       );
@@ -248,6 +337,7 @@ const TaalGrid = forwardRef(({ taal, grid, onChange }, ref) => {
 const styles = StyleSheet.create({
   mainContainer: {
     minHeight: 200,
+    marginBottom: 10
   },
   row: {
     flexDirection: 'row',

@@ -6,13 +6,8 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
-  Dimensions,
-  Animated,
-  Easing,
   SafeAreaView,
-  Keyboard
+  Keyboard,
 } from 'react-native';
 import { useLocalSearchParams, Stack, router } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
@@ -20,8 +15,6 @@ import ViewShot from 'react-native-view-shot';
 import * as Sharing from 'expo-sharing';
 import * as Print from 'expo-print';
 import { useHeaderHeight } from '@react-navigation/elements';
-
-
 
 import TaalGrid from '@/components/TaalGrid';
 import { loadComposition, saveComposition } from '@/utils/storage';
@@ -32,38 +25,25 @@ export default function CompositionScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
-  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
-  const [scale, setScale] = useState(1);
-  const scaleValue = useRef(new Animated.Value(1)).current;
+
   const gridRef = useRef(null);
   const horizontalScrollRef = useRef(null);
   const scrollViewRef = useRef(null);
 
   const headerHeight = useHeaderHeight();
 
-  // Add keyboard listeners
+  // Keyboard handling
   useEffect(() => {
-    const keyboardDidShowListener = Keyboard.addListener(
-      'keyboardDidShow',
-      (e) => {
-        setKeyboardHeight(e.endCoordinates.height);
-        setIsKeyboardVisible(true);
-      }
+    const showSub = Keyboard.addListener('keyboardDidShow', (e) =>
+      setKeyboardHeight(e.endCoordinates.height)
     );
-    const keyboardDidHideListener = Keyboard.addListener(
-      'keyboardDidHide',
-      () => {
-        setKeyboardHeight(0);
-        setIsKeyboardVisible(false);
-      }
-    );
+    const hideSub = Keyboard.addListener('keyboardDidHide', () => setKeyboardHeight(0));
 
     return () => {
-      keyboardDidShowListener?.remove();
-      keyboardDidHideListener?.remove();
+      showSub.remove();
+      hideSub.remove();
     };
   }, []);
-
 
   useEffect(() => {
     fetchComposition();
@@ -126,27 +106,29 @@ export default function CompositionScreen() {
 
     const tableHeaders = Array.from({ length: taal.numberOfColumns }, (_, i) => {
       const style = divisionIndices.includes(i)
-        ? 'border-right: 3px solid black;'
+        ? 'border-right: 2px solid #388E3C;'
         : 'border-right: none;';
       return `<th style="${style}">${i + 1}</th>`;
     }).join('');
 
-    const nonEmptyRows = grid.filter(row =>
-      row.some(cell => (cell || '').trim() !== '')
-    );
+    const nonEmptyRows = grid.filter((row) => row.some((cell) => (cell || '').trim() !== ''));
 
-    const tableRows = nonEmptyRows.map(row => {
-      return (
-        `<tr>` +
-        row.map((cell, i) => {
-          const style = divisionIndices.includes(i)
-            ? 'border-right: 3px solid black;'
-            : 'border-right: none;';
-          return `<td style="${style}">${cell || ''}</td>`;
-        }).join('') +
-        `</tr>`
-      );
-    }).join('');
+    const tableRows = nonEmptyRows
+      .map((row) => {
+        return (
+          `<tr>` +
+          row
+            .map((cell, i) => {
+              const style = divisionIndices.includes(i)
+                ? 'border-right: 2px solid #388E3C;'
+                : 'border-right: none;';
+              return `<td style="${style}">${cell || ''}</td>`;
+            })
+            .join('') +
+          `</tr>`
+        );
+      })
+      .join('');
 
     return `
       <html>
@@ -155,15 +137,16 @@ export default function CompositionScreen() {
             body {
               font-family: Arial, sans-serif;
               padding: 24px;
+              background-color: #fff;
             }
-            h2 { color: #6A45D1; }
-            h4 { color: #9B2335; }
+            h2 { color: black; }
+            h4 { color: black; text-decoration: underline; }
 
             table {
               width: 100%;
               border-collapse: collapse;
               margin-top: 12px;
-              border: 2px solid black;
+              border: 2px solid gray;
             }
 
             th, td {
@@ -174,7 +157,7 @@ export default function CompositionScreen() {
             }
 
             th {
-              background-color: #f5f5f5;
+              background-color: white;
             }
           </style>
         </head>
@@ -193,7 +176,7 @@ export default function CompositionScreen() {
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#6A45D1" />
+        <ActivityIndicator size="large" color="#388E3C" />
       </View>
     );
   }
@@ -204,23 +187,22 @@ export default function CompositionScreen() {
         options={{
           title: composition?.name || 'Composition',
           headerStyle: {
-            backgroundColor: '#F5F7FF',
-            shadowColor: '#6A45D1',
+            backgroundColor: '#E8F5E9',
+            shadowColor: '#388E3C',
             shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.1,
+            shadowOpacity: 0.15,
             shadowRadius: 8,
-            // elevation: 3,
           },
           headerShown: true,
           headerTitleStyle: {
-            color: '#1E1E2E',
+            color: '#2E7D32',
             fontWeight: '700',
             fontSize: 18,
           },
           headerTitleAlign: 'center',
           headerLeft: () => (
             <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-              <Feather name="chevron-left" size={24} color="#6A45D1" />
+              <Feather name="chevron-left" size={22} color="#388E3C" />
               <Text style={styles.backButtonText}>Back</Text>
             </TouchableOpacity>
           ),
@@ -231,10 +213,10 @@ export default function CompositionScreen() {
               disabled={isSaving}
             >
               {isSaving ? (
-                <ActivityIndicator color="#6A45D1" size="small" />
+                <ActivityIndicator color="#388E3C" size="small" />
               ) : (
                 <>
-                  <Feather name="download" size={20} color="#6A45D1" />
+                  <Feather name="download" size={20} color="#2E7D32" />
                   <Text style={styles.saveButtonText}>Save</Text>
                 </>
               )}
@@ -244,156 +226,95 @@ export default function CompositionScreen() {
       />
 
       <SafeAreaView style={styles.safeArea}>
-        {/* <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          style={styles.keyboardAvoidContainer}
-          keyboardVerticalOffset={headerHeight}
-        > */}
-          <ScrollView
-            ref={scrollViewRef}
-            contentContainerStyle={[
-              styles.scrollContent,
-              { paddingBottom: keyboardHeight > 0 ? keyboardHeight + 20 : 100 }
-            ]}
-            showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps="handled"
-          >
-            <View style={styles.gridContainer}>
-              <ViewShot ref={gridRef} options={{ format: 'png', quality: 1 }}>
-                <ScrollView
-                  horizontal
-                  ref={horizontalScrollRef}
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={styles.horizontalScrollContent}
-                >
-                  <TaalGrid
-                    taal={composition?.taal}
-                    grid={composition?.grid}
-                    onChange={handleGridChange}
-                  />
-                </ScrollView>
-              </ViewShot>
-            </View>
-          </ScrollView>
-        {/* </KeyboardAvoidingView> */}
+        <ScrollView
+          ref={scrollViewRef}
+          contentContainerStyle={[
+            styles.scrollContent,
+            { paddingBottom: keyboardHeight > 0 ? keyboardHeight + 20 : 20 },
+          ]}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={styles.gridContainer}>
+            <ViewShot ref={gridRef} options={{ format: 'png', quality: 1 }}>
+              <ScrollView
+                horizontal
+                ref={horizontalScrollRef}
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.horizontalScrollContent}
+              >
+                <TaalGrid
+                  taal={composition?.taal}
+                  grid={composition?.grid}
+                  onChange={handleGridChange}
+                />
+              </ScrollView>
+            </ViewShot>
+          </View>
+        </ScrollView>
       </SafeAreaView>
     </>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F5F7FF',
-    position: 'relative',
-  },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F5F7FF',
-  },
-  keyboardAvoidContainer: {
-    flex: 1,
+    backgroundColor: '#E8F5E9',
   },
   safeArea: {
     flex: 1,
-    backgroundColor: '#F5F7FF',
+    backgroundColor: '#F9FFF9',
   },
   scrollContent: {
-    paddingRight: 20,
-    paddingBottom: 0,
-  },
-  headerContainer: {
-    marginBottom: 0,
-    padding: 16,
-    backgroundColor: 'white',
-    borderRadius: 12,
-    shadowColor: '#6A45D1',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  taalName: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#1E1E2E',
-    marginBottom: 4,
-  },
-  taalInfo: {
-    fontSize: 16,
-    color: '#6D6D8A',
+    flexGrow: 1,
+    paddingHorizontal: 16,
   },
   gridContainer: {
-    backgroundColor: 'white',
-    borderRadius: 12,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
     padding: 1,
-    shadowColor: '#6A45D1',
+    shadowColor: '#388E3C',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+    elevation: 4,
+    marginTop: 16,
     marginBottom: 16,
   },
   horizontalScrollContent: {
     paddingRight: 0,
   },
-  headerLeftContainer: {
-    marginLeft: 8,
-  },
-  headerRightContainer: {
-    marginRight: 8,
-  },
   backButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 8,
+    backgroundColor: 'rgba(56, 142, 60, 0.1)',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 20,
   },
   backButtonText: {
-    color: '#6A45D1',
-    fontSize: 16,
+    color: '#2E7D32',
+    fontSize: 15,
     marginLeft: 4,
     fontWeight: '600',
   },
   saveButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(106, 69, 209, 0.1)',
+    backgroundColor: 'rgba(56, 142, 60, 0.1)',
     paddingVertical: 6,
     paddingHorizontal: 12,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: 'rgba(106, 69, 209, 0.2)',
+    borderColor: 'rgba(56, 142, 60, 0.2)',
   },
   saveButtonText: {
-    color: '#6A45D1',
-    fontSize: 16,
+    color: '#2E7D32',
+    fontSize: 15,
     marginLeft: 6,
     fontWeight: '600',
-  },
-  fixedButtons: {
-    position: 'absolute',
-    bottom: 20,
-    right: 20,
-    flexDirection: 'row',
-    gap: 10,
-    zIndex: 10,
-  },
-  actionButton: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: '#6A45D1',
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-  },
-  removeButton: {
-    backgroundColor: '#FF6B6B',
   },
 });

@@ -162,22 +162,24 @@ const CreateCompositionModal = ({ visible, onClose, onSuccess }) => {
   );
 };
 
+// inside CreateCompositionModal.tsx
+
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    backgroundColor: 'rgba(0,0,0,0.4)', // keep semi-transparent black
     justifyContent: 'center',
     alignItems: 'center',
     padding: 16,
   },
   modalContainer: {
-    backgroundColor: '#1E1E2E',
+    backgroundColor: '#E8F5E9', // soft green background
     borderRadius: 24,
     width: '100%',
     maxWidth: 420,
     maxHeight: '80%',
     padding: 24,
-    shadowColor: '#6A45D1',
+    shadowColor: '#81C784', // green shadow
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.3,
     shadowRadius: 20,
@@ -190,93 +192,67 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#3A3A4A',
+    borderBottomColor: '#C8E6C9',
   },
   title: {
     fontSize: 22,
     fontWeight: '700',
-    color: '#E2E2FF',
-    letterSpacing: 0.5,
+    color: '#388E3C', // deep green
   },
   closeButton: {
-    backgroundColor: '#3A3A4A',
+    backgroundColor: '#A5D6A7', // light green
     borderRadius: 12,
     width: 36,
     height: 36,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  formGroup: {
-    marginBottom: 24,
-  },
   label: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#B8B8D8',
-    marginBottom: 12,
+    color: '#2E7D32', // strong green
+    marginBottom: 8,
   },
   input: {
-    backgroundColor: '#2A2A3A',
+    backgroundColor: '#fff',
     borderRadius: 12,
     padding: 16,
-    color: '#E2E2FF',
+    color: '#1E1E2E',
     fontSize: 16,
     borderWidth: 1,
-    borderColor: '#3A3A4A',
-  },
-  taalList: {
-    maxHeight: 180,
-    borderRadius: 12,
-    marginTop: 8,
+    borderColor: '#A5D6A7',
   },
   taalOption: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#2A2A3A',
-    padding: 16,
+    backgroundColor: '#fff',
+    padding: 14,
     borderRadius: 12,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: '#3A3A4A',
+    borderColor: '#A5D6A7',
   },
   selectedTaal: {
-    borderColor: '#6A45D1',
-    backgroundColor: '#2A2A3A',
-    shadowColor: '#6A45D1',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  taalInfo: {
-    flex: 1,
+    borderColor: '#388E3C',
+    backgroundColor: '#C8E6C9', // soft green highlight
   },
   taalName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#E2E2FF',
-    marginBottom: 4,
+    color: '#388E3C', // deep green
   },
   taalStructure: {
     fontSize: 14,
-    color: '#9A9BBD',
-  },
-  checkIcon: {
-    backgroundColor: '#E2E2FF',
-    borderRadius: 10,
-    padding: 4,
-    marginLeft: 10,
+    color: '#2E7D32',
   },
   createButton: {
-    backgroundColor: '#6A45D1',
+    backgroundColor: '#388E3C', // deep green button
     borderRadius: 12,
-    padding: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
+    padding: 16,
     flexDirection: 'row',
-    marginTop: 8,
-    shadowColor: '#6A45D1',
+    justifyContent: 'center',
+    marginTop: 12,
+    shadowColor: '#388E3C',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.4,
     shadowRadius: 8,
@@ -284,19 +260,14 @@ const styles = StyleSheet.create({
   },
   createButtonText: {
     color: '#fff',
-    fontWeight: '600',
+    fontWeight: '700',
     fontSize: 16,
-    letterSpacing: 0.5,
+    marginRight: 8,
   },
   buttonIcon: {
-    marginLeft: 10,
-  },
-  errorText: {
-    color: '#FF6B8B',
-    fontSize: 14,
-    marginTop: 8,
-    marginLeft: 4,
+    // icon color is already white, matches button
   },
 });
+
 
 export default CreateCompositionModal;
