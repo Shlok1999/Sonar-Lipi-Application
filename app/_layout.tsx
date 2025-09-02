@@ -1,34 +1,34 @@
-import React, { useEffect, useState } from 'react';
-import { Stack } from 'expo-router';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { StatusBar } from 'expo-status-bar';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { useEffect, useState } from "react";
+import { Stack } from "expo-router";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import { StatusBar } from "expo-status-bar";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   ActivityIndicator,
   View,
   StyleSheet,
   Dimensions,
-} from 'react-native';
+} from "react-native";
 
-const { width, height } = Dimensions.get('window');
+const { width, height } = Dimensions.get("window");
 
 export default function RootLayout() {
-  const [isLoggedIn, setIsLoggedIn] = useState<null | boolean>(null);
+  const [hasProfile, setHasProfile] = useState<null | boolean>(null);
 
   useEffect(() => {
-    const checkLoginStatus = async () => {
+    const checkUserProfile = async () => {
       try {
-        const status = await AsyncStorage.getItem('isLoggedIn');
-        setIsLoggedIn(status === 'true');
+        const profile = await AsyncStorage.getItem("userProfile");
+        setHasProfile(!!profile); // true if userProfile exists
       } catch (e) {
-        console.error('Failed to check login status', e);
-        setIsLoggedIn(false);
+        console.error("Failed to check user profile", e);
+        setHasProfile(false);
       }
     };
-    checkLoginStatus();
+    checkUserProfile();
   }, []);
 
-  if (isLoggedIn === null) {
+  if (hasProfile === null) {
     return (
       <View style={loadingStyles.container}>
         {/* Decorative circles */}
@@ -36,7 +36,6 @@ export default function RootLayout() {
         <View style={[loadingStyles.decorCircle, loadingStyles.circle2]} />
         <View style={[loadingStyles.decorCircle, loadingStyles.circle3]} />
         <View style={[loadingStyles.decorCircle, loadingStyles.circle4]} />
-
         <ActivityIndicator size="large" color="#4CAF50" />
       </View>
     );
@@ -47,24 +46,23 @@ export default function RootLayout() {
       <StatusBar style="dark" />
       <Stack
         screenOptions={{
-          headerStyle: { backgroundColor: '#4CAF50' },
-          headerTintColor: '#FFFFFF',
-          headerTitleStyle: { fontWeight: '700' },
+          headerShown: true,
+          headerStyle: { backgroundColor: "#5aab5dff" },
+          headerTintColor: "#FFFFFF",
+          headerTitleStyle: { fontWeight: "700" },
         }}
       >
-        {isLoggedIn ? (
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        {hasProfile ? (
+          <Stack.Screen name="Compositions"  />
         ) : (
           [
             <Stack.Screen
               key="Welcome"
               name="Welcome"
-              options={{ headerShown: false }}
             />,
             <Stack.Screen
               key="Login"
               name="Login"
-              options={{ headerShown: false }}
             />,
           ]
         )}
@@ -76,14 +74,14 @@ export default function RootLayout() {
 const loadingStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F7FF',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "#F5F7FF",
+    justifyContent: "center",
+    alignItems: "center",
   },
   decorCircle: {
-    position: 'absolute',
+    position: "absolute",
     borderRadius: 100,
-    backgroundColor: 'rgba(76, 175, 80, 0.1)', // Soft green
+    backgroundColor: "rgba(76, 175, 80, 0.1)", // Soft green
   },
   circle1: {
     width: 120,
@@ -96,20 +94,20 @@ const loadingStyles = StyleSheet.create({
     height: 80,
     top: height * 0.65,
     right: width * 0.15,
-    backgroundColor: 'rgba(38, 52, 79, 0.08)',
+    backgroundColor: "rgba(38, 52, 79, 0.08)",
   },
   circle3: {
     width: 60,
     height: 60,
     bottom: height * 0.2,
     left: width * 0.2,
-    backgroundColor: 'rgba(123, 131, 135, 0.1)',
+    backgroundColor: "rgba(123, 131, 135, 0.1)",
   },
   circle4: {
     width: 100,
     height: 100,
     top: height * 0.3,
     right: width * 0.25,
-    backgroundColor: 'rgba(76, 175, 80, 0.15)',
+    backgroundColor: "rgba(76, 175, 80, 0.15)",
   },
 });
