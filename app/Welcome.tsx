@@ -1,16 +1,32 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { View, Text, StyleSheet, Image, TouchableOpacity, Animated, Dimensions } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const { width, height } = Dimensions.get("window");
 
 export default function Welcome() {
   const router = useRouter();
+  const [hasProfile, setHasProfile] = useState<null | boolean>(null);
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideUpAnim = useRef(new Animated.Value(30)).current;
   const logoScale = useRef(new Animated.Value(0.5)).current;
   const logoRotate = useRef(new Animated.Value(0)).current;
+
+  // Check login state on component mount
+  useEffect(() => {
+    const checkUserProfile = async () => {
+      try {
+        const profile = await AsyncStorage.getItem("userProfile");
+        setHasProfile(!!profile);
+      } catch (e) {
+        console.error("Failed to check user profile", e);
+        setHasProfile(false);
+      }
+    };
+    checkUserProfile();
+  }, []);
 
   // Animation effects
   useEffect(() => {
@@ -49,6 +65,16 @@ export default function Welcome() {
     inputRange: [0, 1],
     outputRange: ['0deg', '360deg']
   });
+
+  const handleGetStarted = () => {
+    if (hasProfile) {
+      // User is already logged in, go directly to index
+      router.replace("/(tabs)");
+    } else {
+      // User needs to login
+      router.push("/Login");
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -112,10 +138,12 @@ export default function Welcome() {
       >
         <TouchableOpacity 
           style={styles.primaryButton} 
-          onPress={() => router.push("/Login")}
+          onPress={handleGetStarted}
           activeOpacity={0.8}
         >
-          <Text style={styles.primaryButtonText}>Get Started</Text>
+          <Text style={styles.primaryButtonText}>
+            {hasProfile ? "Continue" : "Get Started"}
+          </Text>
         </TouchableOpacity>
       </Animated.View>
     </View>

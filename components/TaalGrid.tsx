@@ -84,9 +84,47 @@ const TaalGrid = forwardRef(({ taal, grid, onChange }, ref) => {
   };
 
   const handleKeyPress = (event, rowIndex, colIndex) => {
-    if (event.nativeEvent.key === ' ') {
-      event.preventDefault();
+    const key = event.nativeEvent.key;
+    
+    // Debug: log the key being pressed
+    // console.log('Key pressed:', key, 'Cell content:', grid[rowIndex][colIndex]);
+    
+    if (key === ' ') {
+      event.preventDefault(); 
       moveToNextCell(rowIndex, colIndex);
+    }
+
+    // If cell is empty and I press backspace, go to the previous cell
+    if ((key === 'backspace' || key === 'Backspace' || key === 'BackSpace') && grid[rowIndex][colIndex] === '') {
+      event.preventDefault();
+      moveToPreviousCell(rowIndex, colIndex);
+    }
+  };
+
+  const moveToPreviousCell = (currentRow, currentCol) => {
+    let previousRow = currentRow;
+    let previousCol = currentCol - 1;
+
+    // If at the beginning of row, move to previous row
+    if (previousCol < 0) {
+      previousRow -= 1;
+      previousCol = numberOfColumns - 1;
+    }
+    
+    // If at the beginning of grid, stay at current cell
+    if (previousRow < 0) {
+      return;
+    }
+
+    // Focus the previous cell
+    const previousCellRef = textInputRefs.current[`${previousRow}-${previousCol}`];
+
+    if (previousCellRef) {
+      previousCellRef.focus();
+      setFocusedCell({ row: previousRow, col: previousCol });
+      
+      // Scroll to make the cell visible if needed
+      scrollToCell(previousRow, previousCol);
     }
   };
 

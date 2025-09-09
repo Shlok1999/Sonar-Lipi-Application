@@ -13,22 +13,14 @@ import {
 const { width, height } = Dimensions.get("window");
 
 export default function RootLayout() {
-  const [hasProfile, setHasProfile] = useState<null | boolean>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const checkUserProfile = async () => {
-      try {
-        const profile = await AsyncStorage.getItem("userProfile");
-        setHasProfile(!!profile); // true if userProfile exists
-      } catch (e) {
-        console.error("Failed to check user profile", e);
-        setHasProfile(false);
-      }
-    };
-    checkUserProfile();
+    // Always show welcome first, so no need to check profile here
+    setIsLoading(false);
   }, []);
 
-  if (hasProfile === null) {
+  if (isLoading) {
     return (
       <View style={loadingStyles.container}>
         {/* Decorative circles */}
@@ -52,20 +44,22 @@ export default function RootLayout() {
           headerTitleStyle: { fontWeight: "700" },
         }}
       >
-        {hasProfile ? (
-          <Stack.Screen name="Compositions"  />
-        ) : (
-          [
-            <Stack.Screen
-              key="Welcome"
-              name="Welcome"
-            />,
-            <Stack.Screen
-              key="Login"
-              name="Login"
-            />,
-          ]
-        )}
+        {/* Always show Welcome first, then Login, then tabs */}
+        <Stack.Screen
+          name="Welcome"
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Login"
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen 
+          name="(tabs)" 
+          options={{ 
+            headerShown: false,
+            presentation: 'card'
+          }} 
+        />
       </Stack>
     </SafeAreaProvider>
   );
