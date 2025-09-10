@@ -102,7 +102,7 @@ export default function Dashboard() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
-        <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+        <StatusBar barStyle="dark-content" />
 
         {/* Floating animated circles */}
         <Animated.View

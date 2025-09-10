@@ -8,6 +8,7 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
+  StatusBar,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
@@ -51,6 +52,7 @@ export default function Login() {
       behavior={Platform.OS === "ios" ? "padding" : undefined}
       style={styles.container}
     >
+      <StatusBar barStyle="light-content" />
       <LinearGradient
         colors={["#4CAF50", "#2E7D32"]}
         style={styles.background}

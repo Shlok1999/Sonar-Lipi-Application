@@ -30,7 +30,8 @@
           "android": {
             "compileSdkVersion": 35,
             "targetSdkVersion": 34,
-            "minSdkVersion": 24
+            "minSdkVersion": 24,
+            "enableEdgeToEdge": false
           }
         }
       ]
@@ -47,7 +48,12 @@
       }
     },
     "android": {
-      "package": "com.shlok1999.sonarlipi"
+      "package": "com.shlok1999.sonarlipi",
+      "statusBar": {
+        "barStyle": "dark-content",
+        "backgroundColor": "#FFFFFF"
+      },
+      "softwareKeyboardLayoutMode": "pan"
     },
     "owner": "shloksri"
   }

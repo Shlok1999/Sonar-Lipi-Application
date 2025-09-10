@@ -8,6 +8,8 @@ import {
   ActivityIndicator,
   SafeAreaView,
   Keyboard,
+  StatusBar,
+  Platform,
 } from 'react-native';
 import { useLocalSearchParams, Stack, router } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
@@ -183,16 +185,12 @@ export default function CompositionScreen() {
 
   return (
     <>
+      <StatusBar barStyle="dark-content" />
       <Stack.Screen
         options={{
           title: composition?.name || 'Composition',
           headerStyle: {
             backgroundColor: '#E8F5E9',
-            shadowColor: '#388E3C',
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.15,
-            shadowRadius: 8,
-            marginTop: 12,
           },
           headerShown: true,
           headerTitleStyle: {

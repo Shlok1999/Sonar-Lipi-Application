@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from "react";
-import { View, Text, StyleSheet, Image, TouchableOpacity, Animated, Dimensions } from "react-native";
+import { View, Text, StyleSheet, Image, TouchableOpacity, Animated, Dimensions, StatusBar } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -78,6 +78,7 @@ export default function Welcome() {
 
   return (
     <View style={styles.container}>
+      <StatusBar barStyle="dark-content" />
       {/* Background with gradient */}
       <LinearGradient 
         colors={["#E7F1F9", "#FFFFFF"]} 
