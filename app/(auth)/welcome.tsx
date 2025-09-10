@@ -19,7 +19,6 @@ export default function Welcome() {
     const checkUserProfile = async () => {
       try {
         const profile = await AsyncStorage.getItem("userProfile");
-        console.log("Welcome screen: Profile check result:", !!profile);
         setHasProfile(!!profile);
       } catch (e) {
         console.error("Failed to check user profile", e);
@@ -31,9 +30,7 @@ export default function Welcome() {
 
   // Animation effects
   useEffect(() => {
-    // Logo animation sequence
     Animated.parallel([
-      // Fade and slide up for text
       Animated.timing(fadeAnim, {
         toValue: 1,
         duration: 1000,
@@ -44,14 +41,12 @@ export default function Welcome() {
         duration: 800,
         useNativeDriver: true,
       }),
-      // Logo scale animation
       Animated.spring(logoScale, {
         toValue: 1,
         friction: 5,
         tension: 40,
         useNativeDriver: true,
       }),
-      // Logo rotation animation
       Animated.loop(
         Animated.timing(logoRotate, {
           toValue: 1,
@@ -62,45 +57,36 @@ export default function Welcome() {
     ]).start();
   }, [fadeAnim, slideUpAnim, logoScale, logoRotate]);
 
-  const rotateInterpolate = logoRotate.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0deg', '360deg']
-  });
-
   const handleGetStarted = async () => {
     try {
-      // Mark that user has seen the welcome screen
       await AsyncStorage.setItem('hasSeenWelcome', 'true');
       
       if (hasProfile) {
-        // User is already logged in, go directly to index
         router.replace("/(tabs)");
       } else {
-        // User needs to login
-        router.push("/Login");
+        router.push("/login");
       }
     } catch (error) {
       console.error('Error updating welcome status:', error);
     }
   };
 
-  // Don't auto-redirect, always show the welcome screen first
-  // The user will decide when to proceed by clicking the button
+  const rotateInterpolate = logoRotate.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg']
+  });
 
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" />
-      {/* Background with gradient */}
       <LinearGradient 
         colors={["#E7F1F9", "#FFFFFF"]} 
         style={styles.background}
       />
       
-      {/* Decorative elements */}
       <View style={styles.circle1} />
       <View style={styles.circle2} />
       
-      {/* Welcome text at the top */}
       <Animated.View 
         style={[styles.welcomeTextContainer, { 
           opacity: fadeAnim,
@@ -110,7 +96,6 @@ export default function Welcome() {
         <Text style={styles.welcomeText}>Welcome to</Text>
       </Animated.View>
 
-      {/* Animated Logo in center */}
       <Animated.View 
         style={[
           styles.logoContainer,
@@ -123,17 +108,16 @@ export default function Welcome() {
         ]}
       >
         <LinearGradient
-          colors={["#4CAF50", "#66BB6A"]} // Green gradient
+          colors={["#4CAF50", "#66BB6A"]}
           style={styles.logoBackground}
         >
           <Image 
-            source={require("../assets/images/PAAVAMAI__3_-removebg-preview.png")} 
+            source={require("../../assets/images/PAAVAMAI__3_-removebg-preview.png")} 
             style={styles.logoImage} 
           />
         </LinearGradient>
       </Animated.View>
 
-      {/* App name */}
       <Animated.View 
         style={[styles.appNameContainer, { 
           opacity: fadeAnim,
@@ -142,7 +126,6 @@ export default function Welcome() {
         <Text style={styles.appName}>Sonar Lipi</Text>
       </Animated.View>
 
-      {/* Get Started button at bottom */}
       <Animated.View 
         style={[styles.buttonContainer, { 
           opacity: fadeAnim,
@@ -180,7 +163,7 @@ const styles = StyleSheet.create({
     width: 300,
     height: 300,
     borderRadius: 150,
-    backgroundColor: "rgba(76, 175, 80, 0.1)", // Green with opacity
+    backgroundColor: "rgba(76, 175, 80, 0.1)",
     top: -100,
     right: -100,
   },
@@ -200,7 +183,6 @@ const styles = StyleSheet.create({
   welcomeText: {
     fontSize: 22,
     color: "#7B8387",
-    fontFamily: "System",
     fontWeight: "500",
     letterSpacing: 0.5,
   },
@@ -214,7 +196,7 @@ const styles = StyleSheet.create({
     borderRadius: 75,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#4CAF50", // Green shadow
+    shadowColor: "#4CAF50",
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.3,
     shadowRadius: 15,
@@ -233,7 +215,6 @@ const styles = StyleSheet.create({
     fontSize: 36,
     fontWeight: "800",
     color: "#26344F",
-    fontFamily: "System",
     letterSpacing: 1,
   },
   buttonContainer: {
@@ -242,13 +223,13 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   primaryButton: {
-    backgroundColor: "#4CAF50", // Green button
+    backgroundColor: "#4CAF50",
     width: "100%",
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#4CAF50", // Green shadow
+    shadowColor: "#4CAF50",
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -258,6 +239,5 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 16,
     fontWeight: "700",
-    fontFamily: "System",
   },
 });

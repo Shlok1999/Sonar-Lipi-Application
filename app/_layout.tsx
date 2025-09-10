@@ -17,9 +17,28 @@ export default function RootLayout() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Always show welcome first, so no need to check profile here
-    console.log("RootLayout: Setting loading to false, should show Welcome screen");
-    setIsLoading(false);
+    const initializeApp = async () => {
+      try {
+        const [userProfile, hasSeenWelcome] = await Promise.all([
+          AsyncStorage.getItem('userProfile'),
+          AsyncStorage.getItem('hasSeenWelcome')
+        ]);
+
+        // Reset initialization state if needed
+        if (!hasSeenWelcome) {
+          await AsyncStorage.setItem('hasSeenWelcome', 'false');
+        }
+
+        // Clear AsyncStorage for testing (remove in production)
+        // await AsyncStorage.clear();
+      } catch (error) {
+        console.error('Error initializing app:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    initializeApp();
   }, []);
 
   if (isLoading) {
@@ -51,30 +70,23 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <StatusBar style="dark" />
       <Stack
-        initialRouteName="Welcome"
         screenOptions={{
-          headerShown: true,
-          headerStyle: { 
-            backgroundColor: "#5aab5dff",
-          },
-          headerTintColor: "#FFFFFF",
-          headerTitleStyle: { fontWeight: "700" },
+          headerShown: false,
         }}
       >
-        {/* Always show Welcome first, then Login, then tabs */}
-        <Stack.Screen
-          name="Welcome"
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="Login"
-          options={{ headerShown: false }}
+        <Stack.Screen 
+          name="(auth)" 
+          options={{ 
+            headerShown: false,
+            gestureEnabled: false
+          }} 
         />
         <Stack.Screen 
           name="(tabs)" 
           options={{ 
             headerShown: false,
-            presentation: 'card'
+            presentation: 'card',
+            gestureEnabled: false
           }} 
         />
       </Stack>

@@ -1,7 +1,8 @@
-import React, { useRef, useEffect } from 'react';
-import { Tabs } from 'expo-router';
+import React, { useRef, useEffect, useState } from 'react';
+import { Tabs, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { StyleSheet, View, Animated, Platform } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Animated Tab Icon
 function AnimatedIcon({ focused, name, size, color }: any) {
@@ -40,6 +41,29 @@ function AnimatedIcon({ focused, name, size, color }: any) {
 }
 
 export default function TabLayout() {
+  const router = useRouter();
+  const [isReady, setIsReady] = useState(false);
+
+  useEffect(() => {
+    checkInitialRoute();
+  }, []);
+
+  const checkInitialRoute = async () => {
+    try {
+      const hasSeenWelcome = await AsyncStorage.getItem('hasSeenWelcome');
+      if (!hasSeenWelcome) {
+        router.replace('/Welcome');
+      }
+    } catch (error) {
+      console.error('Error checking welcome status:', error);
+    }
+    setIsReady(true);
+  };
+
+  if (!isReady) {
+    return null;
+  }
+
   return (
     <Tabs
       screenOptions={{

@@ -53,7 +53,7 @@ export default function Settings() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF5F0', // warm background
+    backgroundColor: '#E7F1F9', // matching the app's background
     padding: 16,
   },
   section: {
@@ -63,29 +63,29 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#D63324', // deep red
+    color: '#2E7D32', // dark green
     marginBottom: 12,
     marginTop: 20,
   },
   button: {
-    backgroundColor: 'rgba(255, 94, 58, 0.1)', // soft orange button
+    backgroundColor: 'rgba(76, 175, 80, 0.1)', // soft green button
     paddingVertical: 14,
     paddingHorizontal: 28,
     borderRadius: 8,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(255, 94, 58, 0.2)', // subtle orange border
+    borderColor: 'rgba(76, 175, 80, 0.2)', // subtle green border
   },
   buttonText: {
-    color: '#FF5E3A', // bright orange text
+    color: '#388E3C', // green text
     fontWeight: '600',
     fontSize: 16,
   },
   infoContainer: {
-    backgroundColor: '#FFFAF5', // soft card background
+    backgroundColor: '#FFFFFF', // white card background
     borderRadius: 12,
     padding: 20,
-    shadowColor: '#FF5E3A', // orange shadow
+    shadowColor: '#4CAF50', // green shadow
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
     shadowRadius: 8,
@@ -94,17 +94,17 @@ const styles = StyleSheet.create({
   infoTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#D63324', // deep red
+    color: '#2E7D32', // dark green
     marginBottom: 8,
   },
   infoVersion: {
     fontSize: 14,
-    color: '#FF5E3A', // bright orange
+    color: '#66BB6A', // light green
     marginBottom: 12,
   },
   infoDescription: {
     fontSize: 14,
-    color: '#1E1E2E',
+    color: '#7B8387', // matching the app's text color
     lineHeight: 20,
   },
 });
