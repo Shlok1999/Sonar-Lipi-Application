@@ -19,6 +19,7 @@ export default function Welcome() {
     const checkUserProfile = async () => {
       try {
         const profile = await AsyncStorage.getItem("userProfile");
+        console.log("Welcome screen: Profile check result:", !!profile);
         setHasProfile(!!profile);
       } catch (e) {
         console.error("Failed to check user profile", e);
@@ -75,6 +76,9 @@ export default function Welcome() {
       router.push("/Login");
     }
   };
+
+  // Don't auto-redirect, always show the welcome screen first
+  // The user will decide when to proceed by clicking the button
 
   return (
     <View style={styles.container}>

@@ -5,6 +5,11 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
+    "splash": {
+      "image": "./assets/images/PAAVAMAI__2_-removebg-preview.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#E7F1F9"
+    },
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,

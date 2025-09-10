@@ -6,6 +6,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   ActivityIndicator,
   View,
+  Text,
   StyleSheet,
   Dimensions,
 } from "react-native";
@@ -17,6 +18,7 @@ export default function RootLayout() {
 
   useEffect(() => {
     // Always show welcome first, so no need to check profile here
+    console.log("RootLayout: Setting loading to false, should show Welcome screen");
     setIsLoading(false);
   }, []);
 
@@ -28,6 +30,18 @@ export default function RootLayout() {
         <View style={[loadingStyles.decorCircle, loadingStyles.circle2]} />
         <View style={[loadingStyles.decorCircle, loadingStyles.circle3]} />
         <View style={[loadingStyles.decorCircle, loadingStyles.circle4]} />
+        
+        {/* App Logo/Icon */}
+        <View style={loadingStyles.logoContainer}>
+          <View style={loadingStyles.logoBackground}>
+            <Text style={loadingStyles.logoText}>SL</Text>
+          </View>
+        </View>
+        
+        {/* App Name */}
+        <Text style={loadingStyles.appName}>Sonar Lipi</Text>
+        
+        {/* Loading Indicator */}
         <ActivityIndicator size="large" color="#4CAF50" />
       </View>
     );
@@ -37,6 +51,7 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <StatusBar style="dark" />
       <Stack
+        initialRouteName="Welcome"
         screenOptions={{
           headerShown: true,
           headerStyle: { 
@@ -70,7 +85,7 @@ export default function RootLayout() {
 const loadingStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F7FF",
+    backgroundColor: "#E7F1F9",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -105,5 +120,33 @@ const loadingStyles = StyleSheet.create({
     top: height * 0.3,
     right: width * 0.25,
     backgroundColor: "rgba(76, 175, 80, 0.15)",
+  },
+  logoContainer: {
+    marginBottom: 20,
+  },
+  logoBackground: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: "#4CAF50",
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#4CAF50",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  logoText: {
+    color: "#FFFFFF",
+    fontSize: 32,
+    fontWeight: "bold",
+  },
+  appName: {
+    fontSize: 24,
+    fontWeight: "700",
+    color: "#2E7D32",
+    marginBottom: 40,
+    letterSpacing: 1,
   },
 });
